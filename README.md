@@ -1,11 +1,11 @@
 # 69069
 69069 — it’s a Ledger of Presence with no Assets to hold and no Wallet to drain. Presence written Permanently into the block History, carried Forward by activity, and made Provable through its x2 Legacy Continuity System. An Identityless Record Field. 0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A
 
-# SOS69069 — How It Works
+# 69069 — How It Works
 
 ## Overview
 
-SOS69069 is a pure on-chain event ledger. It holds no assets, executes nothing on behalf of users, and has no admin, owner, or upgrade path. It only records signed data as permanent events.
+69069 is a pure on-chain event ledger. It holds no assets, executes nothing on behalf of users, and has no admin, owner, or upgrade path. It only records signed data as permanent events.
 
 ## Core Mechanic
 
@@ -36,16 +36,16 @@ All counters are cyclic `uint256` values. When a counter reaches `type(uint256).
 
 ## Comparison to ERC-20 Tokens
 
-From the outside, SOS69069 deliberately presents the familiar surface of an ERC-20 token:
+From the outside, 69069 deliberately presents the familiar surface of an ERC-20 token:
 
-- `name()` → `"SOS69069"`  
+- `name()` → `"69069"`  
 - `symbol()` → `"SOS"`  
 - `decimals()` → `0`  
 - `balanceOf(address)` → non-negative Effective value  
 - `totalSupply()` → total number of records ever written  
 - `Transfer` events emitted on every record  
 
-In a normal ERC-20, a Transfer moves tokens from one balance to another. In SOS69069 the same event is emitted, but the underlying meaning is different:
+In a normal ERC-20, a Transfer moves tokens from one balance to another. In 69069 the same event is emitted, but the underlying meaning is different:
 
 - The “from” address is the **signer** (Push).  
 - The “to” address is the **intended** recipient (Trust).  
@@ -82,7 +82,7 @@ The signer only ever produces a signature off-chain. Any address can later submi
 
 ## Wallet Display Surface
 
-Because the contract exposes the standard ERC-20 view functions and emits Transfer events, ordinary wallets and block explorers treat SOS69069 as a normal token. Users see balances, transfer histories, and a familiar ticker. There is, however, no `transfer`, no `approve`, and no way to move anything. The familiar surface is purely presentational.
+Because the contract exposes the standard ERC-20 view functions and emits Transfer events, ordinary wallets and block explorers treat 69069 as a normal token. Users see balances, transfer histories, and a familiar ticker. There is, however, no `transfer`, no `approve`, and no way to move anything. The familiar surface is purely presentational.
 
 ## HTML Bridge Layer
 
@@ -104,4 +104,4 @@ Under the hood the page constructs the correct payload, obtains an off-chain sig
 - Contains no proxy.  
 - Contains no privileged account of any kind.
 
-SOS69069 therefore gives users the familiar experience of an ERC-20 token while remaining, at its core, nothing more than an append-only, identityless record of presence.
+69069 therefore gives users the familiar experience of an ERC-20 token while remaining, at its core, nothing more than an append-only, identityless record of presence.
