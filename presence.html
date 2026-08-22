@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>69069 · Presence</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Presence-specific extensions on top of the 69069 design system */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text-primary);
+    }
+
+    .metric-label {
+      color: var(--text-dim);
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .effective-big {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--brand-blue-soft);
+      margin: 4px 0 12px;
+      line-height: 1;
+    }
+
+    .presence-card {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .presence-card.trust {
+      border-left: 3px solid var(--brand-green-bright);
+    }
+
+    .presence-card.push {
+      border-left: 3px solid var(--brand-blue-soft);
+    }
+
+    .presence-title {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .offer-id {
+      color: var(--text-dim);
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .action-buttons button {
+      width: auto;
+      flex: 1;
+      min-width: 100px;
+      margin-top: 0;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .filters button {
+      width: auto;
+      margin-top: 0;
+      padding: 8px 12px;
+      font-size: 13px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .filters button:hover {
+      color: var(--text);
+      opacity: 1;
+    }
+
+    .filters button.active {
+      background: var(--brand-blue);
+      border-color: var(--brand-blue);
+      color: #fff;
+    }
+
+    .event-line {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .event-line:last-child {
+      border-bottom: none;
+    }
+
+    .event-type {
+      font-weight: 700;
+    }
+
+    .event-O { color: var(--brand-purple); }
+    .event-A { color: var(--brand-yellow); }
+    .event-S { color: var(--brand-green-bright); }
+    .event-D { color: var(--brand-blue-soft); }
+    .event-X { color: var(--danger); }
+
+    .status-box {
+      padding: 10px 12px;
+      margin-top: 8px;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      background: var(--input-bg);
+      color: var(--text-muted);
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .status-box strong {
+      color: var(--text-secondary);
+    }
+
+    .address-mini {
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .type-hint {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin: 4px 0 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 8px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #2d8cff;
+      border-radius: var(--radius-md);
+      background: #0f172a;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      outline: none;
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.15);
+    }
+
+    select:focus {
+      border-color: #5ca7ff;
+      box-shadow: 0 0 16px rgba(45, 140, 255, 0.35);
+    }
+
+    #offersList,
+    #activityList {
+      max-height: 520px;
+      overflow: auto;
+    }
+
+    #offersList::-webkit-scrollbar,
+    #activityList::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #offersList::-webkit-scrollbar-track,
+    #activityList::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #offersList::-webkit-scrollbar-thumb,
+    #activityList::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+    }
+
+    /* Market summary (max users / middle price) */
+    .market-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .market-box {
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+    }
+    .market-box .label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-dim);
+      letter-spacing: 0.3px;
+      margin-bottom: 6px;
+    }
+    .market-box .value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .market-box .sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    @media (max-width: 480px) {
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .market-grid {
+        grid-template-columns: 1fr;
+      }
+      .effective-big {
+        font-size: 28px;
+      }
+      .action-buttons button {
+        min-width: 90px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="header-row">
+      <a href="index.html">
+        <img src="logo.webp" alt="69069" class="logo-badge" />
+      </a>
+      <div>
+        <h1>69069 Presence</h1>
+        <p class="subtitle">Ethereum Mainnet</p>
+      </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="card nav-links">
+      <a href="index.html" class="wallet">Ledger</a>
+      <a href="messages.html" class="history">Messages</a>
+      <a href="presence.html" class="offers">PRESENCE</a>
+      <a href="legacy.html" class="legacy">Legacy</a>
+    </div>
+
+    <!-- CONNECTION -->
+    <div class="card">
+ <button id="connectButton">CONNECT</button>
+      <input
+        id="lookupAddress"
+        type="text"
+        value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+        placeholder="0x address"
+        autocomplete="off"
+        spellcheck="false"
+      />
+
+      <p class="muted" style="margin-top:12px;font-size:14px;font-weight:400;">Status:</p>
+      <div id="status" class="status-info" style="font-weight:700;margin-top:2px;">Disconnected</div>
+
+      <p class="muted" style="margin-top:12px;font-size:14px;font-weight:400;">Ledger:</p>
+      <div id="address" class="break" style="font-size:16px;font-weight:700;margin-top:2px;">—</div>
+    </div>
+
+    <!-- SOS PRESENCE (was My SOS Activity) -->
+    <div class="card">
+      <div id="myEffective" class="effective-big">0</div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div id="myTrust" class="metric-value text-green">0</div>
+          <div class="metric-label">TRUST</div>
+        </div>
+        <div class="metric">
+          <div id="myPush" class="metric-value text-red">0</div>
+          <div class="metric-label">PUSH</div>
+        </div>
+        <div class="metric">
+          <div id="myOffers" class="metric-value text-orange">0</div>
+          <div class="metric-label">OFFERS</div>
+        </div>
+        <div class="metric">
+          <div id="myAccepted" class="metric-value text-green">0</div>
+          <div class="metric-label">ACCEPTED</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BEHAVIOR METRICS data block (heading removed) -->
+    <div id="behavior" class="card">
+      <div class="metrics">
+        <div class="metric">
+          <div id="mFirstActions" class="metric-value">0</div>
+          <div class="metric-label">FIRST ACTIONS</div>
+        </div>
+        <div class="metric">
+          <div id="mFirstCompleted" class="metric-value">0</div>
+          <div class="metric-label">FIRST ACTION DONE</div>
+        </div>
+        <div class="metric">
+          <div id="mNeedsAction" class="metric-value">0</div>
+          <div class="metric-label">ACTION MISSING</div>
+        </div>
+        <div class="metric">
+          <div id="mNeedsDone" class="metric-value">0</div>
+          <div class="metric-label">DONE MISSING</div>
+        </div>
+        <div class="metric">
+          <div id="mReceivedSOS" class="metric-value">0</div>
+          <div class="metric-label">SOS RECEIVED</div>
+        </div>
+        <div class="metric">
+          <div id="mReceivedDone" class="metric-value">0</div>
+          <div class="metric-label">RECEIVED → DONE</div>
+        </div>
+        <div class="metric">
+          <div id="mCompleted" class="metric-value">0</div>
+          <div class="metric-label">COMPLETED</div>
+        </div>
+        <div class="metric">
+          <div id="mOpen" class="metric-value">0</div>
+          <div class="metric-label">OPEN DEALS</div>
+        </div>
+        <div class="metric">
+          <div id="mCanceled" class="metric-value">0</div>
+          <div class="metric-label">CANCELED</div>
+        </div>
+        <div class="metric">
+          <div id="mInvalid" class="metric-value">0</div>
+          <div class="metric-label">INVALID SEQUENCE</div>
+        </div>
+        <div class="metric">
+          <div id="mFirstRate" class="metric-value">0%</div>
+          <div class="metric-label">ACTION RATE</div>
+        </div>
+        <div class="metric">
+          <div id="mDoneRate" class="metric-value">0%</div>
+          <div class="metric-label">DONE RATE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATE (was Create Presence) – heading/labels cleaned -->
+    <div class="card">
+      <select id="offerType">
+        <option value="T">TRUST PRESENCE</option>
+        <option value="P">PUSH PRESENCE</option>
+      </select>
+
+      <p class="type-hint" id="typeExplanation">
+        TRUST: the accepter sends the first SOS to the offer creator.
+      </p>
+
+      <label for="offerQty">Quantity</label>
+      <input id="offerQty" type="number" min="1" step="1" value="1" />
+
+      <label for="offerReturn">Return / exchange</label>
+      <input id="offerReturn" maxlength="24" placeholder="0.01ETH" />
+
+      <div class="status-box">
+        <strong>Metadata:</strong>
+        <div id="metadataPreview" class="address-mini" style="margin-top:4px;">—</div>
+      </div>
+
+      <div class="status-box">
+        <strong>Metadata length:</strong>
+        <span id="metadataLength">0</span>/64
+      </div>
+
+      <button id="createOfferButton" class="btn-green" disabled>
+        CREATE
+      </button>
+    </div>
+
+    <!-- ON-CHAIN PRESENCE list (heading removed) -->
+    <div class="card">
+      <div class="filters">
+        <button class="active" data-filter="ALL">ALL</button>
+        <button data-filter="T">TRUST</button>
+        <button data-filter="P">PUSH</button>
+        <button data-filter="OPEN">OPEN</button>
+        <button data-filter="DONE">DONE</button>
+        <button data-filter="PROBLEM">PROBLEM</button>
+      </div>
+
+      <div id="offersList">
+        <p class="muted" style="font-size:14px;font-weight:400;">
+          Connect wallet and load blockchain activity.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+<script type="module">
+
+import { ethers } from
+"https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.min.js";
+
+/*
+=============================================================
+SOS CONFIGURATION
+=============================================================
+*/
+
+const SOS_ADDRESS =
+  "0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A";
+
+const MAINNET_CHAIN_ID = 1n;
+
+const BLOCK_CHUNK = 5000;
+
+const MAX_EVENTS_DISPLAY = 500;
+
+const STALE_DAYS = 7;
+
+/*
+=============================================================
+SOS ABI
+=============================================================
+*/
+
+const SOS_ABI = [
+  "function myStats() view returns (uint256 pushCount,uint256 trustCount,int256 effective)",
+  "function statsOf(address user) view returns (uint256 pushCount,uint256 trustCount,int256 effective)",
+  "function effectiveOf(address user) view returns (int256)",
+  "function trustCountOf(address user) view returns (uint256)",
+  "function pushCountOf(address user) view returns (uint256)",
+  "function balanceOf(address account) view returns (uint256)",
+  "function totalRecorded() view returns (uint256)",
+  "function totalSupply() view returns (uint256)",
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function domainSeparator() view returns (bytes32)",
+  "function recordStructHash(address signer,address intendedTo,bytes32 payloadHash,string metadata) view returns (bytes32)",
+  "function isRecordHashUsed(bytes32 structHash) view returns (bool)",
+  "function recordSignature(address signer,address intendedTo,bytes32 payloadHash,bytes signature,string metadata)",
+  "event SignatureRecorded(address indexed signer,address indexed intendedTo,bytes32 payloadHash,bytes signature,address indexed submitter,uint256 timestamp,string metadata)",
+  "event Transfer(address indexed from,address indexed to,uint256 value)"
+];
+
+/*
+=============================================================
+STATE
+=============================================================
+*/
+
+let provider = null;
+let signer = null;
+let sosRead = null;
+let sosWrite = null;
+
+let walletAddress = null;
+
+let allRecords = [];
+let offers = [];
+let deals = [];
+
+let activeFilter = "ALL";
+
+/*
+=============================================================
+EIP-712
+=============================================================
+*/
+
+const EIP712_TYPES = {
+  Record: [
+    {
+      name: "signer",
+      type: "address"
+    },
+    {
+      name: "intendedTo",
+      type: "address"
+    },
+    {
+      name: "payloadHash",
+      type: "bytes32"
+    },
+    {
+      name: "metadataHash",
+      type: "bytes32"
+    }
+  ]
+};
+
+/*
+=============================================================
+HELPERS
+=============================================================
+*/
+
+function shortAddress(address) {
+  if (!address) return "—";
+  return address.slice(0, 6) +
+    "…" +
+    address.slice(-4);
+}
+
+function shortHash(hash) {
+  if (!hash) return "—";
+  return hash.slice(0, 10) +
+    "…" +
+    hash.slice(-6);
+}
+
+function esc(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function randomHex(bytes) {
+  const arr = new Uint8Array(bytes);
+  crypto.getRandomValues(arr);
+  return Array.from(arr)
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function parseMetadata(metadata) {
+  const parts = (metadata || "").split("|");
+  const code = parts[0] || "";
+  const version = parts[1] || "";
+  const type = parts[2] || "";
+  const offerId = parts[3] || "";
+  const dealId = parts[4] || "";
+  const qty = parts[4] || "";
+  const returnValue = parts[5] || "";
+  const contact = parts[6] || "";
+  return {
+    code,
+    version,
+    type,
+    offerId,
+    dealId: code === "O" ? "" : dealId,
+    qty: code === "O" ? qty : "",
+    returnValue: code === "O" ? returnValue : "",
+    contact: code === "O" ? contact : "",
+    raw: metadata
+  };
+}
+
+function offerPayload(metadata) {
+  return ethers.keccak256(
+    ethers.toUtf8Bytes("OFFER:" + metadata)
+  );
+}
+
+function actionPayload(code, metadata, offerPayloadHash) {
+  return ethers.keccak256(
+    ethers.toUtf8Bytes(
+      code + ":" + metadata + ":" + offerPayloadHash
+    )
+  );
+}
+
+function makeDealId(offerId, acceptor) {
+  return ethers.keccak256(
+    ethers.toUtf8Bytes(offerId + ":" + acceptor.toLowerCase())
+  ).slice(2, 18);
+}
+
+function expectedSOSRecipient(deal) {
+  if (deal.type === "T") {
+    return deal.poster;
+  }
+  return deal.acceptor;
+}
+
+/* Parse a free-text return value into a number if possible (for middle price) */
+function parsePrice(str) {
+  if (!str) return null;
+  const m = String(str).replace(/,/g, "").match(/([0-9]*\.?[0-9]+)/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+/*
+=============================================================
+CONNECT
+=============================================================
+*/
+
+async function connectWallet(silent) {
+  if (!window.ethereum) {
+    throw new Error("No Ethereum wallet detected.");
+  }
+  provider = new ethers.BrowserProvider(window.ethereum);
+  if (silent) {
+    const accounts = await provider.send("eth_accounts", []);
+    if (!accounts || !accounts.length) {
+      return false;
+    }
+  } else {
+    await provider.send("eth_requestAccounts", []);
+  }
+  signer = await provider.getSigner();
+  walletAddress = await signer.getAddress();
+  const network = await provider.getNetwork();
+  if (network.chainId !== MAINNET_CHAIN_ID) {
+    setStatus("Wrong network — switch to Ethereum Mainnet");
+  } else {
+    setStatus("Connected");
+  }
+  sosWrite = new ethers.Contract(
+    SOS_ADDRESS,
+    SOS_ABI,
+    signer
+  );
+  sosRead = sosWrite;
+  document.getElementById("address").innerText =
+    walletAddress;
+  document.getElementById("lookupAddress").value =
+    walletAddress;
+  document.getElementById("connectButton").textContent =
+    "CONNECTED";
+  document.getElementById("createOfferButton").disabled =
+    false;
+  await refreshContractStats();
+  await loadBlockchainRecords();
+  return true;
+}
+
+/*
+=============================================================
+READ CONTRACT STATS
+=============================================================
+*/
+
+async function refreshContractStats() {
+  try {
+    if (!sosRead) {
+      const fallback =
+        ethers.getDefaultProvider("homestead");
+      sosRead = new ethers.Contract(
+        SOS_ADDRESS,
+        SOS_ABI,
+        fallback
+      );
+    }
+    const address =
+      walletAddress ||
+      "0x0000000000000000000000000000000000000000";
+    if (walletAddress) {
+      const [
+        push,
+        trust,
+        effective
+      ] = await sosRead.statsOf(walletAddress);
+      setText("myPush", push.toString());
+      setText("myTrust", trust.toString());
+      setText("myEffective", effective.toString());
+    }
+  } catch (error) {
+    console.error("refreshContractStats", error);
+  }
+}
+
+/*
+=============================================================
+LOAD BLOCKCHAIN RECORDS
+=============================================================
+*/
+
+async function loadBlockchainRecords() {
+  try {
+    if (!sosRead) {
+      const fallback = ethers.getDefaultProvider("homestead");
+      sosRead = new ethers.Contract(SOS_ADDRESS, SOS_ABI, fallback);
+    }
+    setStatus("Loading on-chain records…");
+    const current = await sosRead.runner.provider.getBlockNumber();
+    const fromBlock = Math.max(0, current - 200000);
+    allRecords = [];
+    offers = [];
+    deals = [];
+    const filter = sosRead.filters.SignatureRecorded();
+    for (let start = fromBlock; start <= current; start += BLOCK_CHUNK) {
+      const end = Math.min(start + BLOCK_CHUNK - 1, current);
+      try {
+        const batch = await sosRead.queryFilter(filter, start, end);
+        for (const log of batch) {
+          const args = log.args;
+          allRecords.push({
+            signer: args.signer,
+            intendedTo: args.intendedTo,
+            payloadHash: args.payloadHash,
+            signature: args.signature,
+            submitter: args.submitter,
+            timestamp: Number(args.timestamp),
+            metadata: args.metadata,
+            transactionHash: log.transactionHash,
+            blockNumber: log.blockNumber
+          });
+        }
+      } catch (e) {
+        console.warn("chunk failed", start, end, e);
+      }
+    }
+    rebuildOffersAndDeals();
+    updateBehaviorMetrics();
+    /* updateMarketSummary(); */
+    renderOffers();
+    /* renderActivity(); */
+    const offerCount = allRecords.filter(r => {
+      const m = (r.metadata || "");
+      return m.startsWith("O|");
+    }).length;
+    setStatus(
+      walletAddress
+        ? "Connected · " + offerCount + " offer" + (offerCount === 1 ? "" : "s")
+        : "Read-only · " + offerCount + " offer" + (offerCount === 1 ? "" : "s")
+    );
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Load failed");
+  }
+}
+
+function rebuildOffersAndDeals() {
+  offers = [];
+  deals = [];
+  const offerMap = new Map();
+  for (const rec of allRecords) {
+    const p = parseMetadata(rec.metadata);
+    if (p.code === "O") {
+      const offer = {
+        offerId: p.offerId,
+        type: p.type,
+        qty: p.qty,
+        returnValue: p.returnValue,
+        contact: p.contact,
+        poster: rec.signer,
+        metadata: rec.metadata,
+        payloadHash: rec.payloadHash,
+        transactionHash: rec.transactionHash,
+        timestamp: rec.timestamp,
+        acceptances: [],
+        completed: 0,
+        openDeals: 0
+      };
+      offerMap.set(p.offerId, offer);
+      offers.push(offer);
+    }
+  }
+  for (const rec of allRecords) {
+    const p = parseMetadata(rec.metadata);
+    if (p.code === "A") {
+      const offer = offerMap.get(p.offerId);
+      if (!offer) continue;
+      const deal = {
+        dealId: p.dealId,
+        offerId: p.offerId,
+        type: offer.type,
+        poster: offer.poster,
+        acceptor: rec.signer,
+        offerPayloadHash: offer.payloadHash,
+        validSOS: false,
+        validDone: false,
+        open: true,
+        complete: false,
+        invalid: false,
+        stale: false,
+        expectedSOSActor: offer.type === "T" ? rec.signer : offer.poster,
+        expectedDoneActor: offer.type === "T" ? offer.poster : rec.signer
+      };
+      offer.acceptances.push(deal);
+      deals.push(deal);
+    }
+  }
+  for (const rec of allRecords) {
+    const p = parseMetadata(rec.metadata);
+    if (p.code !== "S" && p.code !== "D") continue;
+    const deal = deals.find(d => d.dealId === p.dealId);
+    if (!deal) continue;
+    if (p.code === "S") {
+      deal.validSOS = true;
+    }
+    if (p.code === "D") {
+      deal.validDone = true;
+      deal.complete = true;
+      deal.open = false;
+    }
+  }
+  const now = Math.floor(Date.now() / 1000);
+  const staleSec = STALE_DAYS * 86400;
+  for (const deal of deals) {
+    if (deal.open && (now - (deal.timestamp || 0)) > staleSec) {
+      deal.stale = true;
+    }
+  }
+  for (const offer of offers) {
+    offer.completed = offer.acceptances.filter(d => d.complete).length;
+    offer.openDeals = offer.acceptances.filter(d => d.open).length;
+  }
+}
+
+function updateBehaviorMetrics() {
+  if (!walletAddress) return;
+  const me = walletAddress.toLowerCase();
+  const myOffers = offers.filter(
+    o => o.poster.toLowerCase() === me
+  );
+  const myAccepted = deals.filter(
+    d => d.acceptor.toLowerCase() === me
+  );
+  const firstActionDeals = deals.filter(
+    d =>
+      (d.poster.toLowerCase() === me ||
+        d.acceptor.toLowerCase() === me) &&
+      d.expectedSOSActor.toLowerCase() === me
+  );
+  const completedFirstAction = firstActionDeals.filter(
+    d => d.validSOS
+  );
+  const missingFirstAction = firstActionDeals.filter(
+    d => !d.validSOS && d.open
+  );
+  const requiredDone = deals.filter(
+    d =>
+      (d.poster.toLowerCase() === me ||
+        d.acceptor.toLowerCase() === me) &&
+      d.expectedDoneActor.toLowerCase() === me &&
+      d.validSOS
+  );
+  const done = requiredDone.filter(d => d.validDone);
+  const missingDone = requiredDone.filter(d => !d.validDone && d.open);
+  const receivedSOS = deals.filter(
+    d =>
+      expectedSOSRecipient(d).toLowerCase() === me &&
+      d.validSOS
+  );
+  const receivedAndDone = receivedSOS.filter(d => d.validDone);
+  const completed = deals.filter(
+    d =>
+      (d.poster.toLowerCase() === me ||
+        d.acceptor.toLowerCase() === me) &&
+      d.complete
+  );
+  const open = deals.filter(
+    d =>
+      (d.poster.toLowerCase() === me ||
+        d.acceptor.toLowerCase() === me) &&
+      d.open
+  );
+  const canceled = deals.filter(
+    d =>
+      (d.poster.toLowerCase() === me ||
+        d.acceptor.toLowerCase() === me) &&
+      !d.open &&
+      !d.complete
+  );
+  const invalid = deals.filter(
+    d =>
+      (d.poster.toLowerCase() === me ||
+        d.acceptor.toLowerCase() === me) &&
+      d.invalid
+  );
+  const firstRate =
+    firstActionDeals.length
+      ? Math.round(
+          completedFirstAction.length /
+          firstActionDeals.length *
+          100
+        )
+      : 0;
+  const doneRate =
+    requiredDone.length
+      ? Math.round(
+          done.length /
+          requiredDone.length *
+          100
+        )
+      : 0;
+  setText("myOffers", myOffers.length);
+  setText("myAccepted", myAccepted.length);
+  setText("mFirstActions", firstActionDeals.length);
+  setText("mFirstCompleted", completedFirstAction.length);
+  setText("mNeedsAction", missingFirstAction.length);
+  setText("mNeedsDone", missingDone.length);
+  setText("mReceivedSOS", receivedSOS.length);
+  setText("mReceivedDone", receivedAndDone.length);
+  setText("mCompleted", completed.length);
+  setText("mOpen", open.length);
+  setText("mCanceled", canceled.length);
+  setText("mInvalid", invalid.length);
+  setText("mFirstRate", firstRate + "%");
+  setText("mDoneRate", doneRate + "%");
+}
+
+/* ========== NEW: market summary from open offers ========== */
+function updateMarketSummary() {
+  function summarize(type) {
+    // open offers of this type that still have open deals or no acceptances yet
+    const list = offers.filter(o => o.type === type && (o.openDeals > 0 || o.acceptances.length === 0));
+    // "users offering per 1 SOS" ≈ quantity when return is normalized; we treat qty as units of SOS presence
+    // max users = max qty seen
+    let maxUsers = 0;
+    const prices = [];
+    for (const o of list) {
+      const q = parseInt(o.qty, 10) || 0;
+      if (q > maxUsers) maxUsers = q;
+      const price = parsePrice(o.returnValue);
+      if (price !== null && q > 0) {
+        // price per 1 SOS
+        prices.push(price / q);
+      }
+    }
+    let mid = "—";
+    if (prices.length) {
+      prices.sort((a, b) => a - b);
+      const midIdx = Math.floor(prices.length / 2);
+      const val = prices.length % 2
+        ? prices[midIdx]
+        : (prices[midIdx - 1] + prices[midIdx]) / 2;
+      mid = Number.isInteger(val) ? String(val) : val.toFixed(4);
+    }
+    return {
+      maxUsers: maxUsers || "—",
+      midPrice: mid
+    };
+  }
+  const trust = summarize("T");
+  const push = summarize("P");
+  setText("trustMaxUsers", trust.maxUsers);
+  setText("trustMidPrice", trust.midPrice);
+  setText("pushMaxUsers", push.maxUsers);
+  setText("pushMidPrice", push.midPrice);
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.innerText = String(value);
+  }
+}
+
+/*
+=============================================================
+RENDER OFFERS
+=============================================================
+*/
+
+function renderOffers() {
+  const container =
+    document.getElementById("offersList");
+  if (!container) return;
+  let filtered = offers.slice().reverse();
+  if (activeFilter === "T") {
+    filtered = filtered.filter(o => o.type === "T");
+  }
+  if (activeFilter === "P") {
+    filtered = filtered.filter(o => o.type === "P");
+  }
+  if (activeFilter === "OPEN") {
+    filtered = filtered.filter(
+      o => o.acceptances.some(d => d.open)
+    );
+  }
+  if (activeFilter === "DONE") {
+    filtered = filtered.filter(o => o.completed > 0);
+  }
+  if (activeFilter === "PROBLEM") {
+    filtered = filtered.filter(
+      o =>
+        o.acceptances.some(
+          d => d.invalid || d.stale
+        )
+    );
+  }
+  filtered = filtered.slice(0, 100);
+  if (!filtered.length) {
+    container.innerHTML =
+      `<p class="muted" style="font-size:14px;font-weight:400;">
+        No matching on-chain Presence.
+      </p>`;
+    return;
+  }
+  container.innerHTML =
+    filtered.map(renderOfferCard).join("");
+}
+
+function renderOfferCard(offer) {
+  const typeName =
+    offer.type === "T"
+      ? "TRUST PRESENCE"
+      : "PUSH PRESENCE";
+  const typeClass =
+    offer.type === "T"
+      ? "trust"
+      : "push";
+  const accepts = offer.acceptances.length;
+  const completed = offer.completed;
+  const open = offer.openDeals;
+  return `
+    <div class="presence-card ${typeClass}">
+      <div class="presence-title">
+        <span class="badge badge-${offer.type === "T" ? "green" : "blue"}">
+          ${typeName}
+        </span>
+        <span class="offer-id">
+          #${esc(offer.offerId)}
+        </span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Poster</span>
+        <span class="data-value address-mini">
+          ${esc(shortAddress(offer.poster))}
+        </span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Quantity</span>
+        <span class="data-value">${esc(offer.qty)}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Return</span>
+        <span class="data-value">${esc(offer.returnValue)}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Accepted</span>
+        <span class="data-value">${accepts}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Completed</span>
+        <span class="data-value">${completed}</span>
+      </div>
+      <div class="data-row">
+        <span class="data-label">Open</span>
+        <span class="data-value">${open}</span>
+      </div>
+      <p class="muted" style="font-size:12px;font-weight:400;margin-top:6px;">
+        ${formatTime(offer.timestamp)}
+      </p>
+      <div class="action-buttons">
+        <button
+          class="btn-blue"
+          style="background:var(--input-bg);border:1px solid var(--border);color:var(--text);"
+          onclick="showOffer('${esc(offer.offerId)}')"
+        >
+          DETAILS
+        </button>
+        ${
+          walletAddress
+            ? `
+              <button
+                class="btn-green"
+                onclick="acceptOffer('${esc(offer.offerId)}')"
+              >
+                ACCEPT
+              </button>
+            `
+            : ""
+        }
+      </div>
+      <div id="offer-details-${esc(offer.offerId)}"></div>
+    </div>
+  `;
+}
+
+/*
+=============================================================
+SHOW OFFER
+=============================================================
+*/
+
+window.showOffer = function(offerId) {
+  const offer = offers.find(o => o.offerId === offerId);
+  if (!offer) return;
+  const el = document.getElementById(
+    "offer-details-" + offerId
+  );
+  if (!el) return;
+  el.innerHTML = `
+    <div class="status-box" style="margin-top:10px;">
+      <strong>Offer payload</strong>
+      <div class="address-mini" style="margin-top:4px;">
+        ${esc(offer.payloadHash)}
+      </div>
+      <br>
+      <strong>Metadata</strong>
+      <div class="address-mini" style="margin-top:4px;">
+        ${esc(offer.metadata)}
+      </div>
+      <br>
+      <strong>Transaction</strong>
+      <div class="address-mini" style="margin-top:4px;">
+        ${esc(offer.transactionHash)}
+      </div>
+      <br>
+      <strong>Acceptances</strong>
+      ${
+        offer.acceptances.length
+          ? offer.acceptances.map(renderDealMini).join("")
+          : '<span class="muted">None</span>'
+      }
+    </div>
+  `;
+};
+
+function renderDealMini(deal) {
+  return `
+    <div class="event-line">
+      <strong>${esc(shortAddress(deal.acceptor))}</strong>
+      ·
+      ${
+        deal.complete
+          ? '<span class="text-green">DONE</span>'
+          : deal.stale
+            ? '<span class="text-red">STALE</span>'
+            : '<span class="text-yellow">OPEN</span>'
+      }
+      <br>
+      Deal:
+      <span class="address-mini">
+        ${esc(deal.dealId)}
+      </span>
+      <br>
+      SOS: ${deal.validSOS ? "✓" : "—"}
+      ·
+      DONE: ${deal.validDone ? "✓" : "—"}
+      ${
+        walletAddress &&
+        (
+          deal.acceptor.toLowerCase() ===
+          walletAddress.toLowerCase() ||
+          deal.poster.toLowerCase() ===
+          walletAddress.toLowerCase()
+        )
+          ? `
+            <div class="action-buttons">
+              ${
+                !deal.validSOS
+                  ? `
+                    <button
+                      class="btn-green"
+                      onclick="sendSOS('${esc(deal.dealId)}')"
+                    >
+                      SEND SOS
+                    </button>
+                  `
+                  : ""
+              }
+              ${
+                deal.validSOS && !deal.validDone
+                  ? `
+                    <button
+                      class="btn-blue"
+                      onclick="markDone('${esc(deal.dealId)}')"
+                    >
+                      MARK DONE
+                    </button>
+                  `
+                  : ""
+              }
+            </div>
+          `
+          : ""
+      }
+    </div>
+  `;
+}
+
+/*
+=============================================================
+ACCEPT OFFER
+=============================================================
+*/
+
+window.acceptOffer = async function(offerId) {
+  try {
+    if (!walletAddress) {
+      throw new Error("Connect wallet first.");
+    }
+    const offer = offers.find(o => o.offerId === offerId);
+    if (!offer) {
+      throw new Error("Offer not found.");
+    }
+    const me = walletAddress.toLowerCase();
+    if (offer.poster.toLowerCase() === me) {
+      throw new Error("You cannot accept your own offer.");
+    }
+    const dealId = makeDealId(offer.offerId, walletAddress);
+    const metadata =
+      "A|1|" +
+      offer.type +
+      "|" +
+      offer.offerId +
+      "|" +
+      dealId;
+    const payloadHash = actionPayload(
+      "A",
+      metadata,
+      offer.payloadHash
+    );
+    await signAndRecord(
+      walletAddress,
+      walletAddress,
+      payloadHash,
+      metadata
+    );
+    await refreshContractStats();
+    await loadBlockchainRecords();
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Acceptance failed.");
+  }
+};
+
+/*
+=============================================================
+SEND SOS
+=============================================================
+*/
+
+window.sendSOS = async function(dealId) {
+  try {
+    const deal = deals.find(d => d.dealId === dealId);
+    if (!deal) {
+      throw new Error("Deal not found.");
+    }
+    const me = walletAddress.toLowerCase();
+    if (deal.expectedSOSActor.toLowerCase() !== me) {
+      throw new Error(
+        "You are not the expected first SOS actor."
+      );
+    }
+    if (deal.validSOS) {
+      throw new Error("SOS has already been recorded.");
+    }
+    const recipient = expectedSOSRecipient(deal);
+    const metadata =
+      "S|1|" +
+      deal.type +
+      "|" +
+      deal.offerId +
+      "|" +
+      deal.dealId;
+    const payloadHash = actionPayload(
+      "S",
+      metadata,
+      deal.offerPayloadHash
+    );
+    await signAndRecord(
+      walletAddress,
+      recipient,
+      payloadHash,
+      metadata
+    );
+    await refreshContractStats();
+    await loadBlockchainRecords();
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "SOS action failed.");
+  }
+};
+
+/*
+=============================================================
+DONE
+=============================================================
+*/
+
+window.markDone = async function(dealId) {
+  try {
+    const deal = deals.find(d => d.dealId === dealId);
+    if (!deal) {
+      throw new Error("Deal not found.");
+    }
+    const me = walletAddress.toLowerCase();
+    if (deal.expectedDoneActor.toLowerCase() !== me) {
+      throw new Error(
+        "You are not the expected completion actor."
+      );
+    }
+    if (!deal.validSOS) {
+      throw new Error(
+        "First SOS action has not been recorded yet."
+      );
+    }
+    if (deal.validDone) {
+      throw new Error("DONE already recorded.");
+    }
+    const metadata =
+      "D|1|" +
+      deal.type +
+      "|" +
+      deal.offerId +
+      "|" +
+      deal.dealId;
+    const payloadHash = actionPayload(
+      "D",
+      metadata,
+      deal.offerPayloadHash
+    );
+    await signAndRecord(
+      walletAddress,
+      walletAddress,
+      payloadHash,
+      metadata
+    );
+    await refreshContractStats();
+    await loadBlockchainRecords();
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "DONE failed.");
+  }
+};
+
+/*
+=============================================================
+CREATE OFFER
+=============================================================
+*/
+
+async function createOffer() {
+  try {
+    if (!walletAddress) {
+      throw new Error("Connect wallet first.");
+    }
+    const type =
+      document.getElementById("offerType").value;
+    const qty =
+      document.getElementById("offerQty").value.trim();
+    const returnValue =
+      document.getElementById("offerReturn").value.trim();
+    if (!qty) {
+      throw new Error("Quantity required.");
+    }
+    if (!returnValue) {
+      throw new Error("Return/exchange value required.");
+    }
+    if (!/^[0-9]+$/.test(qty)) {
+      throw new Error("Quantity must be an integer.");
+    }
+    const offerId = randomHex(12);
+    // contact field removed – keep empty slot for metadata compatibility
+    const contact = "";
+    const metadata = [
+      "O",
+      "1",
+      type,
+      offerId,
+      qty,
+      returnValue,
+      contact
+    ].join("|");
+    if (metadata.length > 64) {
+      throw new Error(
+        "Offer is too long. Shorten return text."
+      );
+    }
+    const payloadHash = offerPayload(metadata);
+    await signAndRecord(
+      walletAddress,
+      walletAddress,
+      payloadHash,
+      metadata
+    );
+    document.getElementById("offerReturn").value = "";
+    updateMetadataPreview();
+    await refreshContractStats();
+    await loadBlockchainRecords();
+  } catch (error) {
+    console.error(error);
+    setStatus(error.message || "Offer creation failed.");
+  }
+}
+
+/*
+=============================================================
+SIGN + RECORD
+=============================================================
+*/
+
+async function signAndRecord(
+  signerAddr,
+  intendedTo,
+  payloadHash,
+  metadata
+) {
+  if (!signer || !sosWrite) {
+    throw new Error("Connect wallet first.");
+  }
+  const network = await provider.getNetwork();
+  const domain = {
+    name: "69069",
+    version: "1",
+    chainId: Number(network.chainId),
+    verifyingContract: SOS_ADDRESS
+  };
+  const metadataHash = ethers.keccak256(
+    ethers.toUtf8Bytes(metadata)
+  );
+  const value = {
+    signer: signerAddr,
+    intendedTo: intendedTo,
+    payloadHash: payloadHash,
+    metadataHash: metadataHash
+  };
+  setStatus("Sign in wallet…");
+  const signature = await signer.signTypedData(
+    domain,
+    EIP712_TYPES,
+    value
+  );
+  setStatus("Submitting transaction…");
+  const tx = await sosWrite.recordSignature(
+    signerAddr,
+    intendedTo,
+    payloadHash,
+    signature,
+    metadata
+  );
+  setStatus("Tx sent — waiting for confirmation…");
+  await tx.wait();
+  setStatus(
+    "Recorded · " + tx.hash.slice(0, 10) + "…"
+  );
+}
+
+/*
+=============================================================
+METADATA PREVIEW
+=============================================================
+*/
+
+function updateMetadataPreview() {
+  const type =
+    document.getElementById("offerType").value;
+  const qty =
+    document.getElementById("offerQty").value.trim() ||
+    "1";
+  const returnValue =
+    document.getElementById("offerReturn").value.trim() ||
+    "RETURN";
+  const contact = "";
+  const offerId = "xxxxxxxxxxxxxxxxxxxxxxxx";
+  const metadata = [
+    "O",
+    "1",
+    type,
+    offerId,
+    qty,
+    returnValue,
+    contact
+  ].join("|");
+  const preview =
+    document.getElementById("metadataPreview");
+  const length =
+    document.getElementById("metadataLength");
+  preview.innerText = metadata;
+  length.innerText = metadata.length;
+  if (metadata.length > 64) {
+    length.style.color = "var(--danger)";
+  } else {
+    length.style.color = "var(--brand-green-bright)";
+  }
+}
+
+/*
+=============================================================
+ACTIVITY
+=============================================================
+*/
+
+function renderActivity() {
+  const container =
+    document.getElementById("activityList");
+  if (!container) return;
+  const recent = allRecords
+    .slice()
+    .reverse()
+    .slice(0, MAX_EVENTS_DISPLAY);
+  if (!recent.length) {
+    container.innerHTML =
+      `<p class="muted" style="font-size:14px;font-weight:400;">
+        No records.
+      </p>`;
+    return;
+  }
+  container.innerHTML =
+    recent.map(renderActivityRecord).join("");
+}
+
+function renderActivityRecord(record) {
+  const p = parseMetadata(record.metadata);
+  const code = p.code;
+  let label = code;
+  if (code === "O") label = "OFFER";
+  if (code === "A") label = "ACCEPT";
+  if (code === "S") label = "SOS";
+  if (code === "D") label = "DONE";
+  if (code === "X") label = "CANCEL";
+  let direction = "";
+  if (code === "S") {
+    direction =
+      shortAddress(record.signer) +
+      " → " +
+      shortAddress(record.intendedTo);
+  } else {
+    direction = shortAddress(record.signer);
+  }
+  return `
+    <div class="event-line">
+      <span class="event-type event-${esc(code)}">
+        ${esc(label)}
+      </span>
+      ·
+      ${esc(direction)}
+      ·
+      ${formatTime(record.timestamp)}
+      <br>
+      ${
+        code === "O"
+          ? `
+            ${
+              p.type === "T"
+                ? "TRUST"
+                : "PUSH"
+            }
+            Presence
+            #${esc(p.offerId)}
+          `
+          : `
+            ${esc(p.offerId || "")}
+            ${
+              p.dealId
+                ? " · deal " + esc(p.dealId)
+                : ""
+            }
+          `
+      }
+      <br>
+      <span class="address-mini">
+        tx: ${esc(shortHash(record.transactionHash))}
+      </span>
+    </div>
+  `;
+}
+
+/*
+=============================================================
+STATUS
+=============================================================
+*/
+
+function setStatus(text) {
+  const el = document.getElementById("status");
+  if (el) {
+    el.innerText = text;
+  }
+}
+
+/*
+=============================================================
+TIME
+=============================================================
+*/
+
+function formatTime(timestamp) {
+  if (!timestamp) return "—";
+  return new Date(timestamp * 1000).toLocaleString();
+}
+
+/*
+=============================================================
+FILTERS
+=============================================================
+*/
+
+document
+  .querySelectorAll(".filters button")
+  .forEach(button => {
+    button.addEventListener("click", () => {
+      document
+        .querySelectorAll(".filters button")
+        .forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+      activeFilter = button.dataset.filter;
+      renderOffers();
+    });
+  });
+
+/*
+=============================================================
+TYPE DESCRIPTION
+=============================================================
+*/
+
+document
+  .getElementById("offerType")
+  .addEventListener("change", () => {
+    const type =
+      document.getElementById("offerType").value;
+    const explanation =
+      document.getElementById("typeExplanation");
+    if (type === "T") {
+      explanation.innerText =
+        "TRUST: the accepter sends the first SOS to the offer creator.";
+    } else {
+      explanation.innerText =
+        "PUSH: the offer creator sends the first SOS to the accepter.";
+    }
+    updateMetadataPreview();
+  });
+
+/*
+=============================================================
+LIVE PREVIEW
+=============================================================
+*/
+
+[
+  "offerQty",
+  "offerReturn"
+].forEach(id => {
+  document
+    .getElementById(id)
+    .addEventListener("input", updateMetadataPreview);
+});
+
+/*
+=============================================================
+BUTTONS
+=============================================================
+*/
+
+document
+  .getElementById("connectButton")
+  .addEventListener("click", async () => {
+    try {
+      await connectWallet();
+    } catch (error) {
+      console.error(error);
+      setStatus(error.message || "Connection failed.");
+    }
+  });
+
+document
+  .getElementById("createOfferButton")
+  .addEventListener("click", createOffer);
+
+/*
+=============================================================
+WALLET EVENTS
+=============================================================
+*/
+
+if (window.ethereum) {
+  window.ethereum.on("accountsChanged", async accounts => {
+    if (!accounts || !accounts.length) {
+      location.reload();
+      return;
+    }
+    try {
+      await connectWallet(true);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+  window.ethereum.on("chainChanged", () => {
+    location.reload();
+  });
+}
+
+/*
+=============================================================
+AUTO CONNECT
+=============================================================
+*/
+
+window.addEventListener("load", async () => {
+  updateMetadataPreview();
+  if (!window.ethereum) {
+    setStatus("No Ethereum wallet detected.");
+    return;
+  }
+  try {
+    const connected = await connectWallet(true);
+    if (!connected) {
+      // no authorized account yet — still load read-only data
+      await refreshContractStats();
+      await loadBlockchainRecords();
+    }
+  } catch (error) {
+    console.warn("Auto connect:", error);
+    try {
+      await refreshContractStats();
+      await loadBlockchainRecords();
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+});
+
+</script>
+
+</body>
+</html>
+

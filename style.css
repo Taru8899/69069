@@ -1,0 +1,987 @@
+/* ============================================================
+   69069 DESIGN SYSTEM
+   ============================================================
+
+   Visual concept:
+   69069 = on-chain ledger / presence / activity explorer
+
+   Semantic colors:
+   GREEN  = Trust / received / positive presence
+   ORANGE = Push / sent / outgoing activity
+   BLUE   = Navigation / lookup / information
+   YELLOW = Wallet / identity / status
+   PURPLE = Legacy
+   RED    = Error / offline
+   GRAY   = Secondary metadata
+
+   Design principles:
+   - Dark
+   - Compact
+   - Mobile-first
+   - High information density
+   - Rounded cards
+   - No unnecessary decoration
+   - Blockchain data remains visible
+   ============================================================ */
+
+/* ============================================================
+   ROOT / BRAND TOKENS
+   ============================================================ */
+
+:root {
+    /* ---------- Brand ---------- */
+    --brand-green: #04aa34;
+    --brand-green-bright: #22c55e;
+    --brand-blue: #0038fe;
+    --brand-blue-soft: #5b8bff;
+    --brand-yellow: #facc15;
+    --brand-orange: #f97316;
+    --brand-purple: #a78bfa;
+    /* ---------- Backgrounds ---------- */
+    --bg: #0a0e0b;
+    --card-bg: #141b16;
+    --input-bg: #232f27;
+    /* ---------- Borders ---------- */
+    --border: #2c3830;
+    --border-soft: #202a24;
+    /* ---------- Text ---------- */
+    --text: #ffffff;
+    --text-primary: #ffffff;
+    --text-secondary: #bbbbbb;
+    --text-muted: #9ca3af;
+    --text-dim: #6b7280;
+    /* ---------- Semantic ---------- */
+    --success: var(--brand-green-bright);
+    --info: var(--brand-blue-soft);
+    --warning: var(--brand-yellow);
+    --danger: #ef4444;
+    --outgoing: var(--brand-orange);
+    /* ---------- Radius ---------- */
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 15px;
+    --radius-xl: 18px;
+    /* ---------- Shadows ---------- */
+    --shadow-card:
+        0 2px 8px rgba(0, 0, 0, .35);
+    --shadow-green:
+        0 0 14px rgba(4, 170, 52, .35);
+    --shadow-blue:
+        0 0 14px rgba(45, 140, 255, .18);
+    /* ---------- Layout ---------- */
+    --page-padding: 10px;
+    --content-width: 500px;
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    min-height: 100%;
+    background: var(--bg);
+}
+
+body {
+    width: 100%;
+    min-height: 100vh;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: var(--page-padding);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+   MAIN CONTAINER
+   ============================================================ */
+
+.container {
+    width: 100%;
+    max-width: var(--content-width);
+    margin: 0 auto;
+}
+
+/* ============================================================
+   LINKS
+   ============================================================ */
+
+a {
+    color: var(--brand-blue-soft);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a:active {
+    opacity: .8;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.header-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+/* Logo */
+
+.logo-badge {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    object-fit: cover;
+    box-shadow:
+        0 0 0 2px var(--card-bg),
+        0 0 14px rgba(4, 170, 52, .5),
+        0 2px 8px rgba(0, 0, 0, .4);
+}
+
+/* Main title */
+
+.header-row h1 {
+    text-align: left;
+    margin: 0 0 2px 0;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+/* Generic centered title */
+
+h1 {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+/* Subtitle */
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.header-row .subtitle {
+    text-align: left;
+    margin-bottom: 0;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+
+h1,
+h2,
+h3 {
+    color: var(--text);
+}
+
+h2 {
+    font-size: 18px;
+    line-height: 1.25;
+    margin-bottom: 10px;
+}
+
+h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+p {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.card p {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.card p.muted {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+}
+
+/* Card heading */
+
+.card h2 {
+    color: var(--brand-green-bright);
+}
+
+/* Compact card */
+
+.card.compact {
+    padding: 14px;
+}
+
+/* Card without bottom spacing */
+
+.card:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+
+.nav-links {
+    text-align: center;
+    margin: 6px 0;
+}
+
+.nav-links a {
+    display: inline-block;
+    margin: 0 10px;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 700;
+    transition:
+        opacity .15s ease,
+        transform .15s ease;
+}
+
+.nav-links a:hover {
+    text-decoration: none;
+    opacity: .8;
+}
+
+.nav-links a:active {
+    transform: scale(.96);
+}
+
+/* Semantic navigation colors */
+
+.nav-links .wallet {
+    color: var(--brand-yellow);
+}
+
+.nav-links .history {
+    color: var(--brand-blue-soft);
+}
+
+.nav-links .offers {
+    color: var(--brand-green-bright);
+}
+
+.nav-links .legacy {
+    color: var(--brand-purple);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    background: var(--brand-blue);
+    color: white;
+    transition:
+        opacity .15s ease,
+        transform .08s ease,
+        box-shadow .15s ease;
+}
+
+button:hover {
+    opacity: .9;
+}
+
+button:active {
+    transform: scale(.98);
+}
+
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Green action */
+
+#mintButton {
+    background: var(--brand-green);
+}
+
+/* Orange / self action */
+
+#selfMintButton {
+    background: var(--brand-orange);
+}
+
+/* Optional semantic button classes */
+
+.btn-blue {
+    background: var(--brand-blue);
+}
+
+.btn-green {
+    background: var(--brand-green);
+}
+
+.btn-orange {
+    background: var(--brand-orange);
+}
+
+.btn-purple {
+    background: #7c3aed;
+}
+
+.btn-danger {
+    background: var(--danger);
+}
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background: var(--input-bg);
+    color: white;
+    font-family: inherit;
+    font-size: 16px;
+    margin-top: 14px;
+    margin-bottom: 10px;
+    outline: none;
+    transition:
+        border-color .15s ease,
+        box-shadow .15s ease,
+        background .15s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-muted);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--brand-blue-soft);
+    box-shadow:
+        0 0 12px rgba(45, 140, 255, .15);
+}
+
+/* ============================================================
+   ADDRESS / BLOCKCHAIN DATA
+   ============================================================ */
+
+#address {
+    font-size: 17px;
+    font-weight: 700;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+#status {
+    color: var(--brand-yellow);
+    font-weight: 700;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+
+/* Generic blockchain value */
+
+.address,
+.tx-hash,
+.block-number,
+.blockchain-value {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   LOOKUP INPUT
+   ============================================================ */
+
+#lookupAddress {
+    border: 1.5px solid #2d8cff;
+    border-radius: var(--radius-md);
+    padding: 12px;
+    background: #0f172a;
+    color: white;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow:
+        0 0 12px rgba(45, 140, 255, .15);
+    font-weight: 700;
+    text-align: center;
+}
+
+#lookupAddress:focus {
+    outline: none;
+    border-color: #5ca7ff;
+    box-shadow:
+        0 0 16px rgba(45, 140, 255, .35);
+}
+
+/* ============================================================
+   TRANSACTION HASH LOOKUP
+   ============================================================ */
+
+.tx-hash-group {
+    position: relative;
+    margin-top: 14px;
+    margin-bottom: 10px;
+}
+
+#txHashInput {
+    border: 1.5px solid #2d8cff;
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    background: #0f172a;
+    color: white;
+    font-size: 15px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow:
+        0 0 12px rgba(45, 140, 255, .15);
+    font-weight: 600;
+    margin: 0;
+    display: block;
+}
+
+#txHashInput:focus {
+    outline: none;
+    border-color: #5ca7ff;
+    box-shadow:
+        0 0 16px rgba(45, 140, 255, .35);
+}
+
+#txHashHelper {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: none;
+    transition: opacity .12s ease;
+}
+
+#txHashHelper.hidden {
+    opacity: 0;
+}
+
+/* ============================================================
+   SOS PRESENCE / BALANCE
+   ============================================================ */
+
+#effective {
+    color: var(--brand-blue-soft);
+}
+
+#trust {
+    color: var(--brand-green-bright);
+}
+
+#push {
+    color: var(--brand-orange);
+}
+
+#totalSupply {
+    color: var(--text-primary);
+}
+
+/* Generic semantic values */
+
+.value-effective {
+    color: var(--brand-blue-soft);
+}
+
+.value-trust {
+    color: var(--brand-green-bright);
+}
+
+.value-push {
+    color: var(--brand-orange);
+}
+
+.value-supply {
+    color: var(--text-primary);
+}
+
+/* ============================================================
+   EVENTS / HISTORY
+   ============================================================ */
+
+#history,
+#sentHistory {
+    font-size: 14px;
+    max-height: 420px;
+    overflow: auto;
+}
+
+/* Event */
+
+.event {
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+}
+
+.event:last-child {
+    border-bottom: none;
+}
+
+/* Incoming / Trust */
+
+.event .dir-in {
+    color: var(--brand-green-bright);
+    font-weight: 700;
+}
+
+/* Outgoing / Push */
+
+.event .dir-out {
+    color: var(--brand-orange);
+    font-weight: 700;
+}
+
+/* Event metadata */
+
+.event .meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+/* Event sender */
+
+.event .meta .sender {
+    color: var(--brand-yellow);
+}
+
+/* Message content */
+
+.event .metadata-msg {
+    font-size: 14px;
+    color: #e2e8f0;
+    margin-top: 14px;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    font-weight: 500;
+}
+
+/* Transaction link */
+
+.event a {
+    display: inline-block;
+    margin-top: 3px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--brand-blue-soft);
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+/* New event */
+
+.event.new {
+    border-left: 3px solid var(--brand-green-bright);
+    padding-left: 8px;
+}
+
+/* ============================================================
+   HISTORY FOOTERS
+   ============================================================ */
+
+#historyFooter,
+#sentHistoryFooter {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+#historyFooter a,
+#sentHistoryFooter a {
+    color: var(--brand-blue-soft);
+}
+
+/* ============================================================
+   LOADING / SUCCESS / ERROR
+   ============================================================ */
+
+.loading {
+    color: var(--brand-blue-soft);
+}
+
+.success {
+    color: var(--brand-green-bright);
+}
+
+.error {
+    color: var(--danger);
+}
+
+/* ============================================================
+   STATUS SYSTEM
+   ============================================================ */
+
+.status-success {
+    color: var(--brand-green-bright);
+}
+
+.status-info {
+    color: var(--brand-blue-soft);
+}
+
+.status-warning {
+    color: var(--brand-yellow);
+}
+
+.status-error {
+    color: var(--danger);
+}
+
+/* ============================================================
+   LIVE / SYNC INDICATOR
+   ============================================================ */
+
+.sync-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-right: 7px;
+    vertical-align: middle;
+    transition:
+        background-color .3s ease,
+        box-shadow .3s ease;
+}
+
+.sync-connecting {
+    background: #9ca3af;
+    animation:
+        sync-pulse 1s infinite ease-in-out;
+}
+
+.sync-live {
+    background: var(--brand-green-bright);
+    box-shadow:
+        0 0 5px var(--brand-green-bright);
+}
+
+.sync-offline {
+    background: var(--danger);
+}
+
+@keyframes sync-pulse {
+    0%,
+    100% {
+        opacity: .4;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ============================================================
+   SCROLLBARS
+   ============================================================ */
+
+#history::-webkit-scrollbar,
+#sentHistory::-webkit-scrollbar {
+    width: 6px;
+}
+
+#history::-webkit-scrollbar-track,
+#sentHistory::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#history::-webkit-scrollbar-thumb,
+#sentHistory::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+
+#history::-webkit-scrollbar-thumb:hover,
+#sentHistory::-webkit-scrollbar-thumb:hover {
+    background: #405047;
+}
+
+/* ============================================================
+   ETHERScan / EXTERNAL LINKS
+   ============================================================ */
+
+.etherscan-link,
+#etherscanLink {
+    color: var(--brand-blue-soft);
+    font-weight: 600;
+}
+
+.etherscan-link:hover,
+#etherscanLink:hover {
+    text-decoration: underline;
+}
+
+/* ============================================================
+   DATA ROWS
+   ============================================================ */
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.data-row:last-child {
+    border-bottom: none;
+}
+
+.data-label {
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.data-value {
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: right;
+    word-break: break-all;
+}
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.badge-green {
+    color: var(--brand-green-bright);
+    background: rgba(34, 197, 94, .10);
+}
+
+.badge-blue {
+    color: var(--brand-blue-soft);
+    background: rgba(91, 139, 255, .10);
+}
+
+.badge-yellow {
+    color: var(--brand-yellow);
+    background: rgba(250, 204, 21, .10);
+}
+
+.badge-orange {
+    color: var(--brand-orange);
+    background: rgba(249, 115, 22, .10);
+}
+
+.badge-purple {
+    color: var(--brand-purple);
+    background: rgba(167, 139, 250, .10);
+}
+
+.badge-red {
+    color: var(--danger);
+    background: rgba(239, 68, 68, .10);
+}
+
+/* ============================================================
+   DIVIDERS
+   ============================================================ */
+
+.divider {
+    height: 1px;
+    width: 100%;
+    background: var(--border);
+    margin: 12px 0;
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+
+.text-green {
+    color: var(--brand-green-bright);
+}
+
+.text-blue {
+    color: var(--brand-blue-soft);
+}
+
+.text-yellow {
+    color: var(--brand-yellow);
+}
+
+.text-orange {
+    color: var(--brand-orange);
+}
+
+.text-purple {
+    color: var(--brand-purple);
+}
+
+.text-red {
+    color: var(--danger);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.text-dim {
+    color: var(--text-dim);
+}
+
+.bold {
+    font-weight: 700;
+}
+
+.center {
+    text-align: center;
+}
+
+.break {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 480px) {
+    body {
+        padding: 12px;
+    }
+    .container {
+        max-width: 100%;
+    }
+    .header-row {
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .header-row h1 {
+        font-size: 21px;
+    }
+    .logo-badge {
+        width: 48px;
+        height: 48px;
+        border-radius: 13px;
+    }
+    h1 {
+        font-size: 28px;
+    }
+    .card {
+        padding: 15px;
+        border-radius: 14px;
+    }
+    .nav-links a {
+        margin-left: 7px;
+        margin-right: 7px;
+        font-size: 16px;
+    }
+    .event .metadata-msg {
+        font-size: 14px;
+    }
+    .event a {
+        font-size: 15px;
+    }
+}
+
+/* ============================================================
+   VERY SMALL SCREENS
+   ============================================================ */
+
+@media (max-width: 360px) {
+    body {
+        padding: 8px;
+    }
+    .card {
+        padding: 13px;
+    }
+    .header-row {
+        gap: 9px;
+    }
+    .logo-badge {
+        width: 44px;
+        height: 44px;
+    }
+    .header-row h1 {
+        font-size: 19px;
+    }
+    .nav-links a {
+        margin-left: 4px;
+        margin-right: 4px;
+        font-size: 15px;
+    }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

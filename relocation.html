@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>69069 · DIRECTORY & RELOCATION MANAGER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #f4f6fa;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      padding: 2rem 1.5rem;
+      color: #0b1a2f;
+    }
+    .container { max-width: 1300px; margin: 0 auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+      margin-bottom: 2.5rem;
+    }
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+    }
+    .brand h1 {
+      font-weight: 700;
+      font-size: 1.9rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(145deg, #0b1a2f, #1f3a5f);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .brand span {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #5b6f8c;
+      margin-left: 0.3rem;
+    }
+    .connect-btn {
+      background: #0b1a2f;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.8rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+      transition: 0.1s ease;
+      letter-spacing: 0.2px;
+    }
+    .connect-btn:hover { background: #1c3452; }
+    .connect-btn.wallet { background: #1f8b4c; }
+    .card {
+      background: white;
+      border-radius: 28px;
+      padding: 1.8rem 2rem;
+      box-shadow: 0 8px 24px rgba(0, 20, 40, 0.04);
+      margin-bottom: 2rem;
+      border: 1px solid rgba(0,0,0,0.02);
+    }
+    .card-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      letter-spacing: -0.01em;
+      color: #1f3a5f;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .publish-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem 2rem;
+    }
+    .publish-grid .full-width { grid-column: 1 / -1; }
+    .field-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      color: #4f6585;
+      margin-bottom: 0.25rem;
+    }
+    .field-input, .field-textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid #dbe0e8;
+      border-radius: 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      background: #fafcff;
+      transition: 0.1s;
+    }
+    .field-input:focus, .field-textarea:focus {
+      outline: 2px solid #b3c9e5;
+      border-color: transparent;
+    }
+    .field-textarea { min-height: 70px; resize: vertical; }
+    .meta-preview {
+      background: #f0f4fe;
+      padding: 0.5rem 1rem;
+      border-radius: 40px;
+      font-family: 'Menlo', monospace;
+      font-size: 0.8rem;
+      color: #1f3a5f;
+      display: inline-block;
+      margin-top: 0.3rem;
+      word-break: break-all;
+    }
+    .sign-btn {
+      background: #0b1a2f;
+      color: white;
+      border: none;
+      padding: 0.9rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.1s;
+      margin-top: 0.5rem;
+      width: fit-content;
+    }
+    .sign-btn:hover { background: #1c3452; }
+    .item-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 0.2rem;
+      border-bottom: 1px solid #eef2f8;
+    }
+    .item-row:last-child { border-bottom: 0; }
+    .item-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .item-title {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+    .item-meta {
+      font-size: 0.8rem;
+      color: #5b6f8c;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.2rem;
+    }
+    .item-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .action-btn {
+      background: transparent;
+      border: 1px solid #d0d9e6;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-weight: 500;
+      font-size: 0.8rem;
+      color: #1f3a5f;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .action-btn:hover { background: #eef3fc; border-color: #b3c9e5; }
+    .action-btn.primary { background: #0b1a2f; color: white; border-color: #0b1a2f; }
+    .action-btn.primary:hover { background: #1c3452; }
+    .status-badge {
+      display: inline-block;
+      background: #d4f0d4;
+      color: #0f5c2b;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.8rem;
+      border-radius: 30px;
+    }
+    .status-badge.offline { background: #f0e4d4; color: #8f5a2b; }
+    .history-list {
+      font-size: 0.9rem;
+      padding-left: 0.5rem;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.3rem 0;
+    }
+    .history-item .current { font-weight: 600; color: #0b1a2f; }
+    .history-item .old { color: #6a7f9e; }
+    .directory-group {
+      background: #f8faff;
+      border-radius: 20px;
+      padding: 1.5rem 1.8rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #b3c9e5;
+    }
+    .group-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .group-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    .group-locations {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem 1.5rem;
+      margin: 0.5rem 0 0.2rem;
+    }
+    .location-chip {
+      background: white;
+      border-radius: 40px;
+      padding: 0.2rem 1rem;
+      border: 1px solid #dbe0e8;
+      font-size: 0.85rem;
+    }
+    .location-chip .green { color: #1f8b4c; font-weight: 500; }
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.8rem;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.8rem 1.2rem;
+      border-radius: 60px;
+      border: 1px solid #dbe0e8;
+      font-size: 1rem;
+    }
+    .flex-space { flex: 1; }
+    .text-small { font-size: 0.8rem; color: #5b6f8c; }
+    .mt-2 { margin-top: 0.7rem; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .relo-box {
+      background: #f2f7ff;
+      border-radius: 24px;
+      padding: 1.5rem 2rem;
+      margin-top: 1rem;
+      border: 1px dashed #7e9bc7;
+    }
+    .relo-old {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .relo-new {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.8rem;
+    }
+    .relo-new input {
+      flex: 2;
+      min-width: 200px;
+      padding: 0.6rem 1rem;
+      border-radius: 40px;
+      border: 1px solid #b3c9e5;
+    }
+    .relo-new button {
+      background: #0b1a2f;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.8rem;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .relo-new button:hover { background: #1c3452; }
+    .contract-address {
+      font-size: 0.8rem;
+      background: #eef3fc;
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      color: #1f3a5f;
+    }
+    @media (max-width: 800px) { .publish-grid { grid-template-columns: 1fr; } .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- header -->
+  <div class="header">
+    <div class="brand">
+      <h1>69069</h1>
+      <span>· DIRECTORY</span>
+      <span class="contract-address">📜 0x7373...B75a8A</span>
+    </div>
+    <button class="connect-btn wallet" id="walletBtn">⛓️ 0x7F3...A9C2</button>
+  </div>
+
+  <!-- PUBLISH -->
+  <div class="card">
+    <div class="card-title">📌 PUBLISH LOCATION</div>
+    <div class="publish-grid">
+      <div class="full-width">
+        <div class="field-label">Content identity (payload hash)</div>
+        <input class="field-input" id="payloadHash" value="0x8a71b2c3d4e5f60798a9b0c1d2e3f405a6b7c8d9e0f1a2b3c4d5e6f708192a3b" placeholder="0x... payload hash">
+      </div>
+      <div>
+        <div class="field-label">Location (intendedTo)</div>
+        <input class="field-input" id="locationUrl" value="https://example.com/file">
+      </div>
+      <div>
+        <div class="field-label">Description</div>
+        <input class="field-input" id="description" value="Example document">
+      </div>
+      <div class="full-width">
+        <div class="field-label">Metadata (≤64 chars, auto‑generated)</div>
+        <div class="meta-preview" id="metaPreview">7H3kL9mN2pQrStUvWxYzAbCdEfGhIjKlMnOpQrStUvWxYzAbCdEfGhIjKl</div>
+      </div>
+      <div class="full-width">
+        <button class="sign-btn" id="publishBtn">✍️ SIGN & PUBLISH → contract</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY PUBLISHED + RELOCATION -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📂 MY PUBLISHED LOCATIONS</div>
+      <div id="myPublished">
+        <div class="item-row">
+          <div class="item-content">
+            <div class="item-title">Example document</div>
+            <div class="item-meta">
+              <span>📍 <span id="currentLocDisplay">https://example.com/file</span></span>
+              <span>🔗 7H3kL9mN2p...</span>
+              <span>📅 21 Aug 2026</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="action-btn" id="checkBtn">✔ CHECK</button>
+            <button class="action-btn primary" id="relocateBtn">↻ RELOCATE</button>
+          </div>
+        </div>
+      </div>
+      <!-- relocation inline -->
+      <div class="relo-box" id="reloBox" style="display: none;">
+        <div class="relo-old">
+          <span style="font-weight:600;">OLD LOCATION</span>
+          <span id="oldLocationDisplay">https://old.example/file</span>
+          <span class="status-badge offline">OFFLINE</span>
+        </div>
+        <div class="relo-new">
+          <span style="font-weight:600;">↓ NEW LOCATION</span>
+          <input id="newLocationInput" value="https://new-location.example/file" placeholder="https://new.example/file">
+          <button id="signNewLocationBtn">✍️ SIGN NEW LOCATION</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCATION HISTORY -->
+    <div class="card">
+      <div class="card-title">📜 LOCATION HISTORY</div>
+      <div id="historyContainer">
+        <div class="history-item"><span class="current">✔ Current</span> <span>https://new-location.example/file</span></div>
+        <div class="history-item"><span class="old">○ Previous</span> <span>https://old-location.example/file</span></div>
+        <div class="history-item"><span class="old">○ Previous</span> <span>https://older-location.example/file</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE DIRECTORY SEARCH + GROUP -->
+  <div class="card">
+    <div class="card-title">🔍 LIVE DIRECTORY SEARCH</div>
+    <div class="search-bar">
+      <input placeholder="Search by content, hash, or location…" value="Example">
+      <button class="action-btn primary" style="padding:0.6rem 2rem;">SEARCH</button>
+    </div>
+    <div id="directoryGroup">
+      <div class="directory-group">
+        <div class="group-header">
+          <span class="group-title">📄 Example Document</span>
+          <span class="text-small">3 publishers · 5 locations</span>
+        </div>
+        <div style="margin: 0.2rem 0 0.2rem; font-size:0.85rem; color:#2a4a7a;">CONTENT 0x8a71...b2c3</div>
+        <div class="group-locations">
+          <span class="location-chip"><span class="green">🟢</span> https://mirror-one.example/file</span>
+          <span class="location-chip"><span class="green">🟢</span> https://mirror-two.example/file</span>
+          <span class="location-chip"><span class="green">🟢</span> https://new-location.example/file</span>
+        </div>
+        <div style="margin-top: 0.8rem; display: flex; gap: 0.6rem;">
+          <button class="action-btn">📂 OPEN</button>
+          <button class="action-btn">📋 HISTORY</button>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:0.85rem; color:#4f6585; background:#eef3fc; padding:0.5rem 1rem; border-radius:40px; display:inline-block;">
+      ⚡ 69069 contract @ 0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A · records grouped by payloadHash
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ----- CONTRACT REFERENCE -----
+    const CONTRACT_ADDRESS = '0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A';
+    console.log(`📜 69069 contract: ${CONTRACT_ADDRESS}`);
+
+    // ----- STATE -----
+    let currentPayload = '0x8a71b2c3d4e5f60798a9b0c1d2e3f405a6b7c8d9e0f1a2b3c4d5e6f708192a3b';
+    let currentLocation = 'https://example.com/file';
+    let historyLocations = [
+      'https://new-location.example/file',
+      'https://old-location.example/file',
+      'https://older-location.example/file'
+    ];
+    let isReloVisible = false;
+
+    // DOM refs
+    const payloadInput = document.getElementById('payloadHash');
+    const locationInput = document.getElementById('locationUrl');
+    const descInput = document.getElementById('description');
+    const metaPreview = document.getElementById('metaPreview');
+    const publishBtn = document.getElementById('publishBtn');
+    const currentLocDisplay = document.getElementById('currentLocDisplay');
+    const checkBtn = document.getElementById('checkBtn');
+    const relocateBtn = document.getElementById('relocateBtn');
+    const reloBox = document.getElementById('reloBox');
+    const oldLocationDisplay = document.getElementById('oldLocationDisplay');
+    const newLocationInput = document.getElementById('newLocationInput');
+    const signNewBtn = document.getElementById('signNewLocationBtn');
+    const historyContainer = document.getElementById('historyContainer');
+    const walletBtn = document.getElementById('walletBtn');
+
+    // Helper: generate 64-char metadata (simulated)
+    function generateMeta() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let i = 0; i < 64; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    function updateMetaPreview() {
+      metaPreview.textContent = generateMeta();
+    }
+    updateMetaPreview();
+
+    function renderHistory() {
+      historyContainer.innerHTML = '';
+      historyLocations.forEach((loc, idx) => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        if (idx === 0) {
+          div.innerHTML = `<span class="current">✔ Current</span> <span>${loc}</span>`;
+        } else {
+          div.innerHTML = `<span class="old">○ Previous</span> <span>${loc}</span>`;
+        }
+        historyContainer.appendChild(div);
+      });
+    }
+
+    function updateUI() {
+      currentLocDisplay.textContent = currentLocation;
+      const groupLocs = document.querySelector('.group-locations');
+      if (groupLocs) {
+        const chips = groupLocs.querySelectorAll('.location-chip');
+        if (chips.length >= 3) {
+          chips[2].innerHTML = `<span class="green">🟢</span> ${currentLocation}`;
+        }
+      }
+      renderHistory();
+      oldLocationDisplay.textContent = currentLocation;
+    }
+
+    // ----- INTERACTIONS -----
+    checkBtn.addEventListener('click', function() {
+      const badge = document.querySelector('.status-badge');
+      if (badge) {
+        if (badge.classList.contains('offline')) {
+          badge.classList.remove('offline');
+          badge.textContent = 'ONLINE';
+          badge.style.background = '#d4f0d4';
+          badge.style.color = '#0f5c2b';
+        } else {
+          badge.classList.add('offline');
+          badge.textContent = 'OFFLINE';
+          badge.style.background = '#f0e4d4';
+          badge.style.color = '#8f5a2b';
+        }
+      }
+    });
+
+    relocateBtn.addEventListener('click', function() {
+      isReloVisible = !isReloVisible;
+      reloBox.style.display = isReloVisible ? 'block' : 'none';
+      oldLocationDisplay.textContent = currentLocation;
+    });
+
+    // SIGN NEW LOCATION: creates new record with same payloadHash, new metadata
+    signNewBtn.addEventListener('click', function() {
+      const newLoc = newLocationInput.value.trim();
+      if (!newLoc) return;
+      // push current to history
+      historyLocations.unshift(currentLocation);
+      currentLocation = newLoc;
+      const newMeta = generateMeta();
+      metaPreview.textContent = newMeta;
+      updateUI();
+      reloBox.style.display = 'none';
+      isReloVisible = false;
+      document.querySelector('.item-meta span:nth-child(2)').textContent = newMeta.slice(0, 10) + '...';
+      const group = document.querySelector('.directory-group .group-locations');
+      if (group) {
+        const chips = group.querySelectorAll('.location-chip');
+        if (chips.length >= 3) {
+          chips[2].innerHTML = `<span class="green">🟢</span> ${currentLocation}`;
+        }
+      }
+      currentLocDisplay.textContent = currentLocation;
+      alert(`✅ New location signed!\npayloadHash: ${currentPayload.slice(0,10)}...\nnew metadata: ${newMeta.slice(0,12)}...\nContract: ${CONTRACT_ADDRESS}`);
+    });
+
+    // PUBLISH new content → simulates contract call
+    publishBtn.addEventListener('click', function() {
+      const payload = payloadInput.value.trim() || '0x8a71b2c3d4e5f60798a9b0c1d2e3f405a6b7c8d9e0f1a2b3c4d5e6f708192a3b';
+      const loc = locationInput.value.trim() || 'https://example.com/file';
+      const desc = descInput.value.trim() || 'Example document';
+      const meta = generateMeta();
+      metaPreview.textContent = meta;
+
+      currentPayload = payload;
+      currentLocation = loc;
+      historyLocations.unshift(loc);
+      updateUI();
+
+      document.querySelector('.item-title').textContent = desc;
+      document.querySelector('.item-meta span:nth-child(2)').textContent = meta.slice(0, 10) + '...';
+      currentLocDisplay.textContent = loc;
+
+      const groupTitle = document.querySelector('.directory-group .group-title');
+      if (groupTitle) groupTitle.textContent = `📄 ${desc}`;
+      const groupContent = document.querySelector('.directory-group div:nth-child(2)');
+      if (groupContent) groupContent.textContent = `CONTENT ${payload.slice(0,10)}...`;
+      const groupLocs = document.querySelector('.directory-group .group-locations');
+      if (groupLocs) {
+        groupLocs.innerHTML = `
+          <span class="location-chip"><span class="green">🟢</span> ${loc}</span>
+          <span class="location-chip"><span class="green">🟢</span> https://mirror-one.example/file</span>
+          <span class="location-chip"><span class="green">🟢</span> https://mirror-two.example/file</span>
+        `;
+      }
+      const pubCount = document.querySelector('.directory-group .text-small');
+      if (pubCount) pubCount.textContent = '3 publishers · 5 locations';
+
+      alert(`✅ Published to 69069 contract!\nContract: ${CONTRACT_ADDRESS}\npayloadHash: ${payload.slice(0,16)}...\nmetadata: ${meta.slice(0,16)}...`);
+    });
+
+    // wallet connect
+    walletBtn.addEventListener('click', function() {
+      alert(`🔗 Wallet connected: 0x7F3...A9C2\nContract: ${CONTRACT_ADDRESS}`);
+    });
+
+    // init
+    renderHistory();
+    updateUI();
+
+    // extra: open/history demo
+    document.querySelectorAll('.action-btn:not(#checkBtn):not(#relocateBtn)').forEach(btn => {
+      if (btn.textContent.includes('OPEN') || btn.textContent.includes('HISTORY')) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (this.textContent.includes('OPEN')) {
+            alert('📂 Opening content (simulated)');
+          } else if (this.textContent.includes('HISTORY')) {
+            alert('📜 Showing full history (simulated)');
+          }
+        });
+      }
+    });
+
+    document.querySelector('.search-bar button')?.addEventListener('click', function() {
+      alert('🔍 Search triggered (simulated)');
+    });
+
+  })();
+</script>
+</body>
+</html>

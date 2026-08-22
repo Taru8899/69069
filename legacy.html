@@ -1,0 +1,1882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>69069 Legacy</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ============================================================
+       LEGACY PAGE
+       ============================================================ */
+
+    .method-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .badge-extension {
+      background: #f6851b;
+      color: white;
+    }
+
+    .badge-walletconnect {
+      background: #3b99fc;
+      color: white;
+    }
+
+    .status-connected {
+      color: var(--brand-green-bright);
+    }
+
+    .status-error {
+      color: var(--danger);
+    }
+
+    .status-warning {
+      color: var(--brand-yellow);
+    }
+
+    .status-info {
+      color: var(--brand-blue-soft);
+    }
+
+    /* MetaMask link */
+    .metamask-link {
+      display: block;
+      text-align: center;
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--brand-blue-soft);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .metamask-link:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
+
+    /* Inputs */
+    input[type="text"] {
+      font-weight: 700;
+      font-size: 16px;
+      text-align: center;
+
+      border: 1.5px solid #2d8cff;
+      border-radius: var(--radius-md);
+
+      padding: 12px;
+
+      background: #0f172a;
+      color: white;
+
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.35);
+
+      margin-top: 14px;
+      margin-bottom: 10px;
+
+      width: 100%;
+      box-sizing: border-box;
+
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #5ca7ff;
+      box-shadow: 0 0 16px rgba(45, 140, 255, 0.5);
+    }
+
+    /* CHECK = same blue style as CONNECT */
+    #legacyScanBtn {
+      background: var(--brand-blue);
+    }
+
+    /*
+      START = normal green action
+      FINISH = legacy navigation color
+    */
+    #legacyStartBtn {
+      background: var(--brand-green);
+    }
+
+    #legacyFinishBtn {
+      background: var(--brand-purple, var(--brand-blue));
+    }
+
+    /*
+      If style.css exposes a specific legacy color,
+      use it automatically.
+    */
+    #legacyFinishBtn {
+      background: var(--brand-pink, var(--brand-purple, var(--brand-blue)));
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button:disabled:hover {
+      opacity: 0.5;
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 6px;
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    .legacy-info {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: var(--radius-md);
+
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(45, 140, 255, 0.30);
+
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .legacy-info.success {
+      color: var(--brand-green-bright);
+      border-color: rgba(34, 197, 94, 0.35);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .legacy-info.warning {
+      color: var(--brand-yellow);
+      border-color: rgba(245, 158, 11, 0.35);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .legacy-info.error {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .legacy-values {
+      margin-top: 10px;
+      padding: 12px;
+
+      border-radius: var(--radius-md);
+
+      background: rgba(2, 6, 23, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+    }
+
+    .legacy-value-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 5px 0;
+    }
+
+    .legacy-value-label {
+      color: var(--text-muted);
+    }
+
+    .legacy-value-number {
+      font-weight: 800;
+      word-break: break-all;
+    }
+
+    .legacy-mono {
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .legacy-progress {
+      height: 5px;
+      background: #1e293b;
+      border-radius: 3px;
+
+      margin-top: 12px;
+
+      overflow: hidden;
+      display: none;
+    }
+
+    .legacy-progress-bar {
+      height: 100%;
+      background: var(--brand-blue);
+
+      width: 0%;
+
+      transition: width 0.2s;
+    }
+
+    .legacy-result {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .card {
+      margin-bottom: 3px;
+    }
+
+    .nav-links {
+      margin-bottom: 1px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+
+  <div class="header-row">
+
+    <a href="index.html">
+      <img
+        src="logo.webp"
+        alt="69069"
+        class="logo-badge"
+      >
+    </a>
+
+    <div>
+      <h1>69069 Legacy</h1>
+      <p class="subtitle">Ethereum Mainnet</p>
+    </div>
+
+  </div>
+
+
+  <!-- ============================================================
+       NAV
+       ============================================================ -->
+
+  <div class="card nav-links">
+
+    <a href="index.html" class="wallet">
+      Ledger
+    </a>
+
+    <a href="messages.html" class="history">
+      Messages
+    </a>
+
+    <a href="presence.html" class="offers">
+      Presence
+    </a>
+
+    <a href="legacy.html" class="legacy">
+      LEGACY
+    </a>
+
+  </div>
+
+
+  <!-- ============================================================
+       CONNECT / AUTO WALLET
+       ============================================================ -->
+
+  <div class="card">
+
+    <button id="connectButton">
+      CONNECT
+    </button>
+
+    <a
+      href="https://link.metamask.io/dapp/sos69069.com"
+      target="_blank"
+      class="metamask-link"
+      id="metamaskLink"
+    >
+      <span class="link-icon">&#128058;</span>
+      MetaMask Wallet
+    </a>
+
+    <p style="margin-top:8px">
+      Status:
+    </p>
+
+    <div id="status">
+      Ready
+    </div>
+
+    <p style="margin-top:8px">
+      Ledger:
+    </p>
+
+    <div id="address">
+      -
+    </div>
+
+  </div>
+
+
+  <!-- ============================================================
+       LEGACY
+       ============================================================ -->
+
+  <div class="card">
+
+    <!-- CHECK -->
+
+    <button
+      id="legacyScanBtn"
+      type="button"
+    >
+      CHECK
+    </button>
+
+
+    <!-- OLD ADDRESS -->
+
+    <input
+      id="legacyOld"
+      type="text"
+      placeholder="Old address"
+      value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+    >
+
+
+    <!-- CHECK RESULT -->
+
+    <div
+      id="legacyCheckResult"
+      class="legacy-info"
+    >
+      you can claim this adress
+    </div>
+
+
+    <!-- ON-CHAIN VALUES -->
+
+    <div
+      id="legacyValues"
+      class="legacy-values"
+      style="display:none;"
+    >
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Connected address
+        </span>
+
+        <span
+          id="legacyNewAddress"
+          class="legacy-value-number legacy-mono"
+        >
+          -
+        </span>
+      </div>
+
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Connected effective
+        </span>
+
+        <span
+          id="legacyNewEffective"
+          class="legacy-value-number"
+        >
+          -
+        </span>
+      </div>
+
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Old address
+        </span>
+
+        <span
+          id="legacyOldAddress"
+          class="legacy-value-number legacy-mono"
+        >
+          -
+        </span>
+      </div>
+
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Old effective now
+        </span>
+
+        <span
+          id="legacyOldEffective"
+          class="legacy-value-number"
+        >
+          -
+        </span>
+      </div>
+
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Old effective after +1
+        </span>
+
+        <span
+          id="legacyOldEffectiveAfter"
+          class="legacy-value-number"
+        >
+          -
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================================================
+       START CLAIM
+       ============================================================ -->
+
+  <div class="card">
+
+    <button
+      id="legacyStartBtn"
+      type="button"
+    >
+      START
+    </button>
+
+
+    <input
+      id="legacyStartAddress"
+      type="text"
+      placeholder="Old address for START"
+      value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+    >
+
+
+    <p
+      id="legacyStartStatus"
+      class="hint"
+    >
+     
+    </p>
+
+
+    <div
+      class="legacy-progress"
+      id="legacyStartProgress"
+    >
+      <div
+        class="legacy-progress-bar"
+        id="legacyStartProgressBar"
+      ></div>
+    </div>
+
+  </div>
+
+
+  <!-- ============================================================
+       FINISH CLAIM
+       ============================================================ -->
+
+  <div class="card">
+
+    <button
+      id="legacyFinishBtn"
+      type="button"
+    >
+      FINISH
+    </button>
+
+
+    <input
+      id="legacyFinishAddress"
+      type="text"
+      placeholder="Old address for FINISH"
+      value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+    >
+
+
+    <p
+      id="legacyFinishStatus"
+      class="hint"
+    >
+
+    </p>
+
+
+    <div
+      class="legacy-progress"
+      id="legacyFinishProgress"
+    >
+      <div
+        class="legacy-progress-bar"
+        id="legacyFinishProgressBar"
+      ></div>
+    </div>
+
+  </div>
+
+
+  <!-- ============================================================
+       SCRIPT RESULT
+       ============================================================ -->
+
+  <div
+    id="legacyTxResult"
+    class="legacy-result"
+  ></div>
+
+</div>
+
+
+<!-- ============================================================
+     ETHERS
+     ============================================================ -->
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+
+
+<script>
+
+  /* ============================================================
+     CONTRACT
+     ============================================================ */
+
+  const CONTRACT_ADDRESS =
+    "0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A";
+
+
+  const DEFAULT_ADDRESS =
+    "0x1C10e6574ee696f54b21A611a21313E4714628ad";
+
+
+  const MAX_METADATA_LENGTH = 64;
+
+
+  const ABI = [
+
+    /* ---------------- READ ---------------- */
+
+    "function effectiveOf(address) view returns (int256)",
+
+    "function statsOf(address) view returns (uint256 pushCount, uint256 trustCount, int256 effective)",
+
+    "function pushCountOf(address) view returns (uint256)",
+
+    "function trustCountOf(address) view returns (uint256)",
+
+    "function totalRecorded() view returns (uint256)",
+
+    "function recordStructHash(address signer, address intendedTo, bytes32 payloadHash, string metadata) pure returns (bytes32)",
+
+    "function isRecordHashUsed(bytes32 structHash) view returns (bool)",
+
+
+    /* ---------------- WRITE ---------------- */
+
+    "function recordSignature(address signer, address intendedTo, bytes32 payloadHash, bytes signature, string metadata)"
+
+  ];
+
+
+  const EIP712_TYPES = {
+
+    Record: [
+
+      {
+        name: "signer",
+        type: "address"
+      },
+
+      {
+        name: "intendedTo",
+        type: "address"
+      },
+
+      {
+        name: "payloadHash",
+        type: "bytes32"
+      },
+
+      {
+        name: "metadataHash",
+        type: "bytes32"
+      }
+
+    ]
+
+  };
+
+
+  /* ============================================================
+     STATE
+     ============================================================ */
+
+  let provider = null;
+  let signer = null;
+  let contract = null;
+  let readContract = null;
+
+  let userAddress = null;
+  let chainId = null;
+
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+
+  function short(address) {
+
+    if (!address) return "-";
+
+    return (
+      address.slice(0, 6) +
+      "..." +
+      address.slice(-4)
+    );
+
+  }
+
+
+  function setStatus(text, type) {
+
+    const el =
+      document.getElementById("status");
+
+    el.innerText = text;
+
+    el.className = "";
+
+    if (type === "connected") {
+
+      el.classList.add("status-connected");
+
+    } else if (type === "error") {
+
+      el.classList.add("status-error");
+
+    } else if (type === "warning") {
+
+      el.classList.add("status-warning");
+
+    } else if (type === "info") {
+
+      el.classList.add("status-info");
+
+    }
+
+  }
+
+
+  function setAddress(address) {
+
+    document.getElementById("address").innerHTML =
+      address
+        ? address +
+          ' <span class="method-badge badge-extension">&#128058; Extension</span>'
+        : "-";
+
+  }
+
+
+  function utf8ByteLength(value) {
+
+    return new TextEncoder()
+      .encode(value)
+      .length;
+
+  }
+
+
+  function getReadContract() {
+
+    if (contract) {
+      return contract;
+    }
+
+    if (readContract) {
+      return readContract;
+    }
+
+    try {
+
+      const fallbackProvider =
+        ethers.getDefaultProvider("homestead");
+
+      readContract =
+        new ethers.Contract(
+          CONTRACT_ADDRESS,
+          ABI,
+          fallbackProvider
+        );
+
+      return readContract;
+
+    } catch (err) {
+
+      console.error(
+        "Read provider error",
+        err
+      );
+
+      return null;
+
+    }
+
+  }
+
+
+  function showCheckResult(
+    text,
+    type = ""
+  ) {
+
+    const el =
+      document.getElementById(
+        "legacyCheckResult"
+      );
+
+    el.textContent = text;
+
+    el.className =
+      "legacy-info" +
+      (type ? " " + type : "");
+
+  }
+
+
+  /* ============================================================
+     WALLET
+     ============================================================ */
+
+  async function connectWallet(
+    silent = false
+  ) {
+
+    if (!window.ethereum) {
+
+      setStatus(
+        "A legacy claim begins when a new address records its first signature to the old address.",
+        "warning"
+      );
+
+      return null;
+
+    }
+
+
+    try {
+
+      provider =
+        new ethers.BrowserProvider(
+          window.ethereum
+        );
+
+
+      if (silent) {
+
+        const accounts =
+          await provider.send(
+            "eth_accounts",
+            []
+          );
+
+        if (
+          !accounts ||
+          accounts.length === 0
+        ) {
+
+          return null;
+
+        }
+
+      } else {
+
+        await provider.send(
+          "eth_requestAccounts",
+          []
+        );
+
+      }
+
+
+      signer =
+        await provider.getSigner();
+
+
+      userAddress =
+        await signer.getAddress();
+
+
+      const network =
+        await provider.getNetwork();
+
+
+      chainId =
+        network.chainId;
+
+
+      contract =
+        new ethers.Contract(
+          CONTRACT_ADDRESS,
+          ABI,
+          signer
+        );
+
+
+      setAddress(userAddress);
+
+
+      setStatus(
+        "Connected",
+        "connected"
+      );
+
+
+      document.getElementById(
+        "connectButton"
+      ).textContent = "CONNECTED";
+
+
+      return userAddress;
+
+
+    } catch (err) {
+
+      console.error(
+        "connectWallet",
+        err
+      );
+
+      setStatus(
+        "A legacy claim begins when a new address records its first signature to the old address.",
+        "warning"
+      );
+
+      return null;
+
+    }
+
+  }
+
+
+  document.getElementById(
+    "connectButton"
+  ).onclick = async () => {
+
+    await connectWallet(false);
+
+  };
+
+
+  /* ============================================================
+     ACCOUNT / NETWORK EVENTS
+     ============================================================ */
+
+  if (
+    window.ethereum &&
+    window.ethereum.on
+  ) {
+
+    window.ethereum.on(
+      "accountsChanged",
+      async accounts => {
+
+        if (
+          accounts &&
+          accounts[0]
+        ) {
+
+          await connectWallet(true);
+
+        } else {
+
+          signer = null;
+          contract = null;
+          userAddress = null;
+
+          setAddress(null);
+
+          setStatus(
+            "Disconnected",
+            "warning"
+          );
+
+          document.getElementById(
+            "connectButton"
+          ).textContent = "CONNECT";
+
+        }
+
+      }
+    );
+
+
+    window.ethereum.on(
+      "chainChanged",
+      () => {
+
+        window.location.reload();
+
+      }
+    );
+
+  }
+
+
+  /* ============================================================
+     ADDRESS INPUT SYNCHRONIZATION
+     ============================================================ */
+
+  const oldInput =
+    document.getElementById(
+      "legacyOld"
+    );
+
+
+  const startInput =
+    document.getElementById(
+      "legacyStartAddress"
+    );
+
+
+  const finishInput =
+    document.getElementById(
+      "legacyFinishAddress"
+    );
+
+
+  /*
+    CHECK address is the master old address.
+
+    START and FINISH are also initialized to the
+    same address and follow it when CHECK address
+    changes.
+  */
+
+  oldInput.addEventListener(
+    "input",
+    () => {
+
+      const value =
+        oldInput.value.trim();
+
+      startInput.value = value;
+      finishInput.value = value;
+
+    }
+  );
+
+
+  /* ============================================================
+     READ EFFECTIVE
+     ============================================================ */
+
+  async function readEffective(
+    address
+  ) {
+
+    const c =
+      getReadContract();
+
+    if (!c) {
+
+      throw new Error(
+        "Unable to read ledger"
+      );
+
+    }
+
+
+    const value =
+      await c.effectiveOf(address);
+
+
+    return BigInt(value.toString());
+
+  }
+
+
+  /* ============================================================
+     CHECK LEGACY
+     ============================================================ */
+
+  document.getElementById(
+    "legacyScanBtn"
+  ).onclick = async () => {
+
+    try {
+
+      const oldAddress =
+        oldInput.value.trim();
+
+
+      if (
+        !ethers.isAddress(
+          oldAddress
+        )
+      ) {
+
+        showCheckResult(
+          "Invalid old address.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (!userAddress) {
+
+        await connectWallet(false);
+
+      }
+
+
+      if (!userAddress) {
+
+        showCheckResult(
+          "A legacy claim begins when a new address records its first signature to the old address.",
+          "warning"
+        );
+
+        return;
+
+      }
+
+
+      showCheckResult(
+        "Checking ledger on chain...",
+        ""
+      );
+
+
+      const newEffective =
+        await readEffective(
+          userAddress
+        );
+
+
+      const oldEffective =
+        await readEffective(
+          oldAddress
+        );
+
+
+      /*
+        IMPORTANT:
+
+        The old address will receive +1 when the
+        START or FINISH transaction is actually
+        mined.
+
+        Therefore:
+
+          oldAfterPush =
+          oldCurrent + 1
+
+        We NEVER forget this +1 when displaying
+        the expected post-transaction state.
+      */
+
+      const oldAfterPush =
+        oldEffective + 1n;
+
+
+      document.getElementById(
+        "legacyNewAddress"
+      ).textContent =
+        short(userAddress);
+
+
+      document.getElementById(
+        "legacyNewEffective"
+      ).textContent =
+        newEffective.toString();
+
+
+      document.getElementById(
+        "legacyOldAddress"
+      ).textContent =
+        short(oldAddress);
+
+
+      document.getElementById(
+        "legacyOldEffective"
+      ).textContent =
+        oldEffective.toString();
+
+
+      document.getElementById(
+        "legacyOldEffectiveAfter"
+      ).textContent =
+        oldAfterPush.toString();
+
+
+      document.getElementById(
+        "legacyValues"
+      ).style.display =
+        "block";
+
+
+      /*
+        If a canonical FINISH record exists,
+        a production contract should expose it
+        directly.
+
+        The current ledger has no canonicalLegacy()
+        function, so CHECK establishes the current
+        chain values only.
+      */
+
+      showCheckResult(
+        "you can claim this adress",
+        "success"
+      );
+
+
+      setStatus(
+        "Legacy data checked on chain.",
+        "connected"
+      );
+
+
+    } catch (err) {
+
+      console.error(
+        "CHECK error",
+        err
+      );
+
+
+      showCheckResult(
+        err?.reason ||
+        err?.shortMessage ||
+        err?.message ||
+        "Unable to check ledger.",
+        "error"
+      );
+
+    }
+
+  };
+
+
+  /* ============================================================
+     UNIFIED LEGACY METADATA
+     ============================================================
+
+     Format:
+
+       L1|S|new|old|N|O|OA
+
+     S = START
+
+       N = new effective
+       O = old effective before +1
+       OA = old effective after +1
+
+     FINISH:
+
+       L1|F|new|old|N|O|OA
+
+     This makes the metadata deterministic and
+     machine-readable.
+
+     Example:
+
+       L1|S|0x...|0x...|50|50|51
+
+     and:
+
+       L1|F|0x...|0x...|110|50|51
+
+     The actual transaction itself proves:
+
+       signer
+       intendedTo
+       payloadHash
+       signature
+       metadata
+
+     through the ledger event / record.
+  */
+
+
+  function makeLegacyMetadata(
+    type,
+    newAddress,
+    oldAddress,
+    newEffective,
+    oldEffective
+  ) {
+
+    /*
+      The complete addresses would exceed the 64-byte
+      metadata field.
+
+      Therefore we use deterministic compact address
+      identifiers.
+
+      Full addresses remain available from the
+      transaction / signature record itself.
+    */
+
+    const newShort =
+      newAddress.slice(0, 6) +
+      newAddress.slice(-4);
+
+    const oldShort =
+      oldAddress.slice(0, 6) +
+      oldAddress.slice(-4);
+
+
+    /*
+      oldAfter = oldEffective + 1
+
+      This is mandatory because this transaction
+      itself changes the old address effective.
+    */
+
+    const oldAfter =
+      BigInt(oldEffective) + 1n;
+
+
+    let metadata =
+      "L1|" +
+      type +
+      "|" +
+      newShort +
+      "|" +
+      oldShort +
+      "|" +
+      newEffective.toString() +
+      "|" +
+      oldEffective.toString() +
+      "|" +
+      oldAfter.toString();
+
+
+    /*
+      Safety check.
+    */
+
+    if (
+      utf8ByteLength(metadata) >
+      MAX_METADATA_LENGTH
+    ) {
+
+      throw new Error(
+        "Legacy metadata exceeds 64 bytes."
+      );
+
+    }
+
+
+    return metadata;
+
+  }
+
+
+  /* ============================================================
+     PAYLOAD HASH
+     ============================================================ */
+
+  function makePayloadHash(
+    type,
+    newAddress,
+    oldAddress
+  ) {
+
+    const nonce =
+      Date.now().toString() +
+      ":" +
+      Math.random().toString(36);
+
+
+    return ethers.keccak256(
+
+      ethers.toUtf8Bytes(
+
+        "69069:LEGACY:" +
+        type +
+        ":" +
+        newAddress +
+        ":" +
+        oldAddress +
+        ":" +
+        nonce
+
+      )
+
+    );
+
+  }
+
+
+  /* ============================================================
+     SEND ONE LEGACY RECORD
+     ============================================================ */
+
+  async function sendLegacyRecord(
+    type,
+    oldAddress,
+    button,
+    progress,
+    progressBar,
+    statusElement
+  ) {
+
+    if (!signer || !contract) {
+
+      await connectWallet(false);
+
+    }
+
+
+    if (!signer || !contract) {
+
+      statusElement.textContent =
+        "Connect wallet first.";
+
+      return;
+
+    }
+
+
+    if (
+      !ethers.isAddress(
+        oldAddress
+      )
+    ) {
+
+      statusElement.textContent =
+        "Invalid old address.";
+
+      return;
+
+    }
+
+
+    if (
+      ethers.getAddress(oldAddress) ===
+      ethers.getAddress(userAddress)
+    ) {
+
+      statusElement.textContent =
+        "New address and old address must be different.";
+
+      return;
+
+    }
+
+
+    button.disabled = true;
+
+
+    progress.style.display =
+      "block";
+
+
+    progressBar.style.width =
+      "10%";
+
+
+    try {
+
+      /*
+        Read BEFORE the +1 push.
+
+        This is the critical snapshot.
+      */
+
+      statusElement.textContent =
+        "Reading ledger state...";
+
+
+      const newEffectiveBefore =
+        await readEffective(
+          userAddress
+        );
+
+
+      progressBar.style.width =
+        "25%";
+
+
+      const oldEffectiveBefore =
+        await readEffective(
+          oldAddress
+        );
+
+
+      /*
+        CRITICAL RULE:
+
+        The old address will receive +1.
+
+        Therefore the expected effective AFTER
+        this transaction is:
+
+            oldEffectiveBefore + 1
+      */
+
+      const oldEffectiveAfter =
+        oldEffectiveBefore + 1n;
+
+
+      /*
+        Build deterministic metadata.
+
+        START:
+          L1|S|...
+
+        FINISH:
+          L1|F|...
+      */
+
+      const metadata =
+        makeLegacyMetadata(
+
+          type,
+
+          userAddress,
+
+          oldAddress,
+
+          newEffectiveBefore,
+
+          oldEffectiveBefore
+
+        );
+
+
+      statusElement.textContent =
+        "Sign legacy " +
+        (type === "S" ? "START" : "FINISH") +
+        " record in wallet...";
+
+
+      progressBar.style.width =
+        "40%";
+
+
+      const network =
+        await provider.getNetwork();
+
+
+      chainId =
+        network.chainId;
+
+
+      const domain = {
+
+        name: "69069",
+
+        version: "1",
+
+        chainId: chainId,
+
+        verifyingContract:
+          CONTRACT_ADDRESS
+
+      };
+
+
+      const payloadHash =
+        makePayloadHash(
+
+          type,
+
+          userAddress,
+
+          oldAddress
+
+        );
+
+
+      const metadataHash =
+        ethers.keccak256(
+          ethers.toUtf8Bytes(
+            metadata
+          )
+        );
+
+
+      const typedValue = {
+
+        signer:
+          userAddress,
+
+        intendedTo:
+          oldAddress,
+
+        payloadHash:
+          payloadHash,
+
+        metadataHash:
+          metadataHash
+
+      };
+
+
+      const signature =
+        await signer.signTypedData(
+
+          domain,
+
+          EIP712_TYPES,
+
+          typedValue
+
+        );
+
+
+      progressBar.style.width =
+        "65%";
+
+
+      statusElement.textContent =
+        "Submitting +1 signature to old address...";
+
+
+      /*
+        EXACTLY ONE record.
+
+        This is deliberately NOT a batch.
+
+        The old address therefore receives
+        exactly +1 effective from this action.
+      */
+
+      const tx =
+        await contract.recordSignature(
+
+          userAddress,
+
+          oldAddress,
+
+          payloadHash,
+
+          signature,
+
+          metadata
+
+        );
+
+
+      statusElement.textContent =
+        "Transaction submitted. Waiting for confirmation...";
+
+
+      progressBar.style.width =
+        "85%";
+
+
+      await tx.wait();
+
+
+      progressBar.style.width =
+        "100%";
+
+
+      /*
+        Read the chain again AFTER the transaction.
+
+        This verifies the actual resulting state.
+      */
+
+      const newEffectiveAfter =
+        await readEffective(
+          userAddress
+        );
+
+
+      const oldEffectiveActual =
+        await readEffective(
+          oldAddress
+        );
+
+
+      statusElement.textContent =
+        (
+          type === "S"
+            ? "START recorded on chain."
+            : "FINISH recorded on chain."
+        ) +
+        " Old effective: " +
+        oldEffectiveBefore.toString() +
+        " → " +
+        oldEffectiveActual.toString();
+
+
+      /*
+        Show the exact evidence.
+      */
+
+      const result =
+        document.getElementById(
+          "legacyTxResult"
+        );
+
+
+      result.innerHTML =
+
+        "<div class='legacy-info success'>" +
+
+          "<strong>" +
+          (
+            type === "S"
+              ? "LEGACY START"
+              : "LEGACY FINISH"
+          ) +
+          " RECORDED</strong><br><br>" +
+
+          "New effective before: " +
+          newEffectiveBefore.toString() +
+          "<br>" +
+
+          "New effective after: " +
+          newEffectiveAfter.toString() +
+          "<br>" +
+
+          "Old effective before: " +
+          oldEffectiveBefore.toString() +
+          "<br>" +
+
+          "Old effective after +1: " +
+          oldEffectiveAfter.toString() +
+          "<br>" +
+
+          "Old effective actually read: " +
+          oldEffectiveActual.toString() +
+          "<br><br>" +
+
+          "Metadata:<br>" +
+
+          "<span class='legacy-mono'>" +
+          metadata +
+          "</span><br><br>" +
+
+          "Tx:<br>" +
+
+          "<span class='legacy-mono'>" +
+          tx.hash +
+          "</span>" +
+
+        "</div>";
+
+
+      setStatus(
+        (
+          type === "S"
+            ? "START recorded on chain."
+            : "FINISH recorded on chain."
+        ),
+        "connected"
+      );
+
+
+    } catch (err) {
+
+      console.error(
+        "Legacy transaction error",
+        err
+      );
+
+
+      statusElement.textContent =
+        err?.reason ||
+        err?.shortMessage ||
+        err?.message ||
+        "Transaction failed.";
+
+
+      setStatus(
+        "Legacy transaction failed.",
+        "error"
+      );
+
+
+    } finally {
+
+      button.disabled = false;
+
+
+      setTimeout(
+        () => {
+
+          progress.style.display =
+            "none";
+
+          progressBar.style.width =
+            "0%";
+
+        },
+        500
+      );
+
+    }
+
+  }
+
+
+  /* ============================================================
+     START
+     ============================================================ */
+
+  document.getElementById(
+    "legacyStartBtn"
+  ).onclick = async () => {
+
+    const oldAddress =
+      startInput.value.trim();
+
+
+    await sendLegacyRecord(
+
+      "S",
+
+      oldAddress,
+
+      document.getElementById(
+        "legacyStartBtn"
+      ),
+
+      document.getElementById(
+        "legacyStartProgress"
+      ),
+
+      document.getElementById(
+        "legacyStartProgressBar"
+      ),
+
+      document.getElementById(
+        "legacyStartStatus"
+      )
+
+    );
+
+  };
+
+
+  /* ============================================================
+     FINISH
+     ============================================================ */
+
+  document.getElementById(
+    "legacyFinishBtn"
+  ).onclick = async () => {
+
+    const oldAddress =
+      finishInput.value.trim();
+
+
+    await sendLegacyRecord(
+
+      "F",
+
+      oldAddress,
+
+      document.getElementById(
+        "legacyFinishBtn"
+      ),
+
+      document.getElementById(
+        "legacyFinishProgress"
+      ),
+
+      document.getElementById(
+        "legacyFinishProgressBar"
+      ),
+
+      document.getElementById(
+        "legacyFinishStatus"
+      )
+
+    );
+
+  };
+
+
+  /* ============================================================
+     AUTO CONNECT
+     ============================================================ */
+
+  window.addEventListener(
+    "load",
+    () => {
+
+      setTimeout(
+        async () => {
+
+          try {
+
+            if (window.ethereum) {
+
+              setStatus(
+                "Connecting...",
+                "info"
+              );
+
+
+              const address =
+                await connectWallet(true);
+
+
+              if (address) {
+
+                return;
+
+              }
+
+            }
+
+
+            setAddress(null);
+
+
+            setStatus(
+              "A legacy claim begins when a new address records its first signature to the old address.",
+              "info"
+            );
+
+
+          } catch (err) {
+
+            console.warn(
+              "Auto-connect failed",
+              err
+            );
+
+
+            setStatus(
+              "A legacy claim begins when a new address records its first signature to the old address.",
+              "info"
+            );
+
+          }
+
+        },
+        500
+      );
+
+    }
+  );
+
+</script>
+
+</body>
+</html>
