@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>69069 Ledger What is the cost of your action right now?</title>
+  <meta name="description" content="Whatever you do. SOS records. Whatever you do. Continue ... Ledger">
+  <link rel="canonical" href="http://sos69069.com/ledger.html">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .method-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+    .badge-extension { background: #f6851b; color: white; }
+    .badge-walletconnect { background: #3b99fc; color: white; }
+    .badge-readonly { background: #64748b; color: white; }
+
+    .status-connected { color: var(--brand-green-bright); }
+    .status-error     { color: var(--danger); }
+    .status-warning   { color: var(--brand-yellow); }
+    .status-info      { color: var(--brand-blue-soft); }
+
+    .metamask-link {
+      display: block;
+      text-align: center;
+      margin-top: 8px;
+      margin-bottom: 0;
+      font-size: 14px;
+      color: var(--brand-blue-soft);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .metamask-link:hover { text-decoration: underline; opacity: 0.8; }
+
+    input[type="text"],
+    input[type="number"] {
+      font-weight: 700;
+      font-size: 16px;
+      text-align: center;
+      border: 1.5px solid #2d8cff;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      background: #0f172a;
+      color: white;
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.35);
+      margin-top: 14px;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      outline: none;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: #5ca7ff;
+      box-shadow: 0 0 16px rgba(45, 140, 255, 0.5);
+    }
+
+    #advancedToggle { margin-top: 14px; }
+
+    .char-count {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: -4px;
+      margin-bottom: 6px;
+    }
+    .char-count.over {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .risk-warning {
+      display: none;
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: var(--danger);
+      font-size: 13px;
+      line-height: 1.4;
+      text-align: center;
+    }
+    .risk-warning.visible { display: block; }
+
+    .progress {
+      height: 5px;
+      background: #1e293b;
+      border-radius: 3px;
+      margin-top: 12px;
+      overflow: hidden;
+      display: none;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--brand-blue);
+      width: 0%;
+      transition: width 0.2s;
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    #sendBtn,
+    #advSendBtn {
+      background: var(--brand-green);
+    }
+    #sendBtn:disabled,
+    #advSendBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #advMetadataList {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #2d8cff;
+      border-radius: var(--radius-md);
+      background: #0f172a;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.35);
+      margin-top: 14px;
+      margin-bottom: 6px;
+      box-sizing: border-box;
+      resize: vertical;
+      font-family: inherit;
+      outline: none;
+    }
+    #advMetadataList:focus {
+      border-color: #5ca7ff;
+      box-shadow: 0 0 16px rgba(45, 140, 255, 0.5);
+    }
+
+    .value-total-gas {
+      color: var(--brand-yellow);
+    }
+
+    .hint-inline {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.9rem;
+    }
+
+    /* ------------------------------------------------------------
+       Sign&Submit corner
+       ------------------------------------------------------------
+       Last item in .header-row with margin-left:auto, so it sits at
+       the top-right of the header, in normal document flow.
+       ------------------------------------------------------------ */
+    .header-link {
+      margin-left: auto;
+      background: var(--card-bg);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-card);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header-row">
+      <a href="index.html">
+        <img src="logo.webp" alt="69069" class="logo-badge">
+      </a>
+      <div>
+        <h1>69069 Ledger</h1>
+        <p class="subtitle">Ethereum Mainnet</p>
+      </div>
+      <a href="sign-submit.html" class="header-link">Sign&amp;Submit</a>
+    </div>
+
+    <!-- NAV -->
+    <div class="card nav-links">
+      <a href="ledger.html" class="wallet">Ledger</a>
+      <a href="messages.html" class="history">Messages</a>
+      <a href="presence.html" class="presence">Presence</a>
+      <a href="legacy.html" class="legacy">Legacy</a>
+    </div>
+
+    <!-- Connect -->
+    <div class="card">
+      <input id="receiver" type="text"
+             placeholder="0x recipient address"
+             value="0x1C10e6574ee696f54b21A611a21313E4714628ad" />
+      <button id="connectButton">CONNECT</button>
+      <a href="https://link.metamask.io/dapp/sos69069.com"
+         target="_blank" class="metamask-link" id="metamaskLink">
+        <span class="link-icon">&#128058;</span> MetaMask Wallet
+      </a>
+    </div>
+
+    <!-- SEND -->
+    <div class="card">
+      <input id="sendAmount" type="number" min="1" max="200"
+             placeholder="1 SOS (max 200, one confirmation each)" />
+      <div id="riskWarning" class="risk-warning">
+        This may take a while and consume more gas.
+      </div>
+      <input id="metadata" type="text" placeholder="short message" maxlength="64" />
+      <p class="char-count" id="metaCount">0/64 characters</p>
+      <button id="sendBtn">SEND</button>
+
+      <label style="display:flex;align-items:center;gap:8px;margin:6px 0 4px;font-size:14px;font-weight:600;color:var(--text-secondary);cursor:pointer;">
+        <input id="convStart" type="checkbox" style="width:auto;margin:0;accent-color:var(--brand-green);" />
+        start a conversation
+      </label>
+      <p class="hint" id="convCode" style="margin-top:0;margin-bottom:6px;display:none;color:var(--brand-yellow);font-weight:700;"></p>
+
+      <div class="progress" id="signProgress">
+        <div class="progress-bar" id="signBar"></div>
+      </div>
+      <p class="hint" id="signStep" style="display:none;"></p>
+      <p class="hint" id="mintProgress"></p>
+    </div>
+
+    <!-- SOS Presence -->
+    <div class="card">
+      <h2>SOS Presence</h2>
+      <p style="font-size:1.2rem; font-weight:700;">
+        Effective: <span id="effective" class="value-effective">0</span>
+        <span style="color:#fff;"> &bull; </span>
+        Trust: <span id="trust" class="value-trust">0</span>
+        <span style="color:#fff;"> &bull; </span>
+        Push: <span id="push" class="value-push">0</span>
+      </p>
+      <p style="margin-top:10px">
+        <a id="etherscanLink"
+           href="https://etherscan.io/address/0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A"
+           target="_blank" rel="noopener" class="etherscan-link">
+          Open on Etherscan &rarr;
+        </a>
+      </p>
+    </div>
+
+    <!-- Gas Cost -->
+    <div class="card" id="gasCostCard">
+      <input id="etherscanApiKey" type="text"
+             placeholder="Etherscan API key (kept in your browser only)"
+             value="V8YQ5ZVSVX6KNDVJBZG5TFG4TGVQN9ACGW" />
+      <button id="calcGasBtn" type="button">CALCULATE</button>
+      <p class="hint" id="gasStatus"></p>
+
+      <p style="font-size:1.1rem; font-weight:700; margin-top:8px; line-height:1.7;">
+        • Effective: <span id="effectiveGas" class="value-effective">-</span>&nbsp;&nbsp;•<br>
+        <span id="effectiveGasCount" class="hint-inline">-</span> (<span id="effectiveGasUsd" class="hint-inline">-</span>)<br>
+        • Trust: <span id="trustGas" class="value-trust">-</span>&nbsp;&nbsp;•<br>
+        <span id="trustGasCount" class="hint-inline">-</span> (<span id="trustGasUsd" class="hint-inline">-</span>)<br>
+        • Push: <span id="pushGas" class="value-push">-</span>&nbsp;&nbsp;•<br>
+        <span id="pushGasCount" class="hint-inline">-</span> (<span id="pushGasUsd" class="hint-inline">-</span>)<br>
+        • Total: <span id="totalGas" class="value-total-gas">-</span>&nbsp;&nbsp;•<br>
+        <span id="totalGasCount" class="hint-inline">-</span> (<span id="totalGasUsd" class="hint-inline">-</span>)
+      </p>
+    </div>
+
+    <!-- Advanced -->
+    <div class="card">
+      <button id="advancedToggle" type="button">ADVANCED (HIDE)</button>
+      <div id="advancedPanel" style="margin-top:12px; display:block;">
+        <input id="advReceiver" type="text"
+               placeholder="0x recipient address"
+               value="0x1C10e6574ee696f54b21A611a21313E4714628ad" />
+        <label style="display:flex;align-items:center;gap:8px;margin:10px 0 6px;font-size:14px;font-weight:600;color:var(--text-secondary);cursor:pointer;">
+          <input id="advConvStart" type="checkbox" style="width:auto;margin:0;accent-color:var(--brand-green);" />
+          start a conversation
+        </label>
+        <p class="hint" id="advConvCode" style="margin-top:0;margin-bottom:8px;display:none;color:var(--brand-yellow);font-weight:700;"></p>
+        <textarea id="advMetadataList" rows="6"
+                  placeholder="up to 64 characters (max 200 lines)"></textarea>
+        <p class="char-count" id="advLinesInfo">0/56 characters · 0 messages queued</p>
+        <button id="advSendBtn">SEND</button>
+        <div class="progress" id="advSignProgress">
+          <div class="progress-bar" id="advSignBar"></div>
+        </div>
+        <p class="hint" id="advSignStep" style="display:none;"></p>
+        <p class="hint" id="advMintProgress"></p>
+        <p>Whatever you do. SOS 69069 records. Continue ...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+  <script src="ledger.js"></script>
+</body>
+</html>

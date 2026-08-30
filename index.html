@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>69069 What is the cost of your action right now?</title>
+<meta
+  name="description"
+  content="Whatever you do. SOS records. Whatever you do. Continue ..."
+>
+  <link rel="canonical" href="http://sos69069.com/">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ============================================================
+       INDEX-SPECIFIC STYLES
+       ============================================================ */
+
+    .method-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+    .badge-extension {
+      background: #f6851b;
+      color: white;
+    }
+    .badge-walletconnect {
+      background: #3b99fc;
+      color: white;
+    }
+
+    .status-connected { color: var(--brand-green-bright); }
+    .status-error     { color: var(--danger); }
+    .status-warning   { color: var(--brand-yellow); }
+    .status-info      { color: var(--brand-blue-soft); }
+
+    .metamask-link {
+      display: block;
+      text-align: center;
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--brand-blue-soft);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .metamask-link:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
+
+    /* Same glowing inputs as messages.html / send block */
+    input[type="text"],
+    input[type="number"] {
+      font-weight: 700;
+      font-size: 16px;
+      text-align: center;
+      border: 1.5px solid #2d8cff;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      background: #0f172a;
+      color: white;
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.35);
+      margin-top: 14px;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      outline: none;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: #5ca7ff;
+      box-shadow: 0 0 16px rgba(45, 140, 255, 0.5);
+    }
+
+    .char-count {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: -4px;
+      margin-bottom: 6px;
+    }
+    .char-count.over {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 6px;
+      text-align: center;
+    }
+
+    /* Green SEND (reply) button */
+    #replySendBtn {
+      background: var(--brand-green);
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      margin-top: 4px;
+    }
+    #replySendBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* CHECK button – same weight as other primary buttons */
+    #lookupBtn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 4px;
+      background: var(--brand-blue);
+      color: white;
+    }
+    #lookupBtn:hover {
+      opacity: 0.9;
+    }
+    #lookupBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Feed list – same .event structure as messages.html */
+    .feed-list {
+      max-height: 420px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+    .feed-empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 16px 8px;
+      font-size: 13px;
+    }
+
+    .event {
+      border-bottom: 1px solid var(--input-bg, #1e293b);
+      padding: 8px 0;
+    }
+    .event .dir-in {
+      color: #22c55e;
+      font-weight: bold;
+    }
+    .event .dir-out {
+      color: #f97316;
+      font-weight: bold;
+    }
+    .event .meta {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-top: 0;
+    }
+    .event a {
+      font-size: 13px;
+      color: var(--brand-blue-soft);
+    }
+    .event .metadata-msg {
+      font-size: 19px;
+      font-weight: 800;
+      line-height: 1.35;
+      margin: 0 0 2px 0;
+      word-break: break-word;
+    }
+    .event .sender {
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+    }
+
+    /* Conversation code input – letter-spacing like messages.html */
+    #replyCode {
+      letter-spacing: 0.08em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header-row">
+      <a href="index.html">
+        <img src="logo.webp" alt="69069" class="logo-badge">
+      </a>
+      <div>
+        <h1>69069</h1>
+        <p class="subtitle">Ethereum Mainnet</p>
+      </div>
+<a href="sign-submit.html" class="header-link">Sign&amp;Submit</a>
+    </div>
+
+    <!-- NAV -->
+    <div class="card nav-links">
+      <a href="ledger.html" class="wallet">Ledger</a>
+      <a href="messages.html" class="history">Messages</a>
+      <a href="presence.html" class="presence">Presence</a>
+      <a href="legacy.html" class="legacy">Legacy</a>
+    </div>
+
+    <!-- CHECK + FEED -->
+    <div class="card">
+
+      <input id="lookupAddress" type="text"
+             placeholder="0x… or name.eth"
+             value="" />
+
+      <button type="button" id="lookupBtn">CHECK</button>
+
+      <!-- Results: same structure as messages.html events -->
+      <div class="feed-list" id="feedResults">
+        <div class="feed-empty">Enter an address or ENS and press CHECK</div>
+      </div>
+    </div>
+
+    <!-- SEND / REPLY block – exact functionality from messages.html -->
+    <div class="card" id="replyCard">
+      <input
+        id="replyCode"
+        type="text"
+        maxlength="8"
+        placeholder="conversation code (8 chars)"
+        autocomplete="off"
+        spellcheck="false"
+      />
+
+      <input
+        id="replyText"
+        type="text"
+        maxlength="64"
+        placeholder="short message"
+        autocomplete="off"
+      />
+      <p class="char-count" id="replyCount">0/64 characters</p>
+
+      <button id="replySendBtn" type="button">SEND</button>
+
+      <p class="hint" id="replyStatus"></p>
+<p>Whatever you do. SOS 69069 records. Continue ...</p>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+  <script src="index.js"></script>
+
+</body>
+</html>

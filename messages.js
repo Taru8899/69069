@@ -1,0 +1,1071 @@
+import {
+            ethers
+        } from "https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.min.js";
+
+        window.ethers = ethers;
+
+
+        // ===============================
+        // 69069 Messages page
+        // Balances: trustCountOf / pushCountOf / effectiveOf
+        // Messages: SignatureRecorded (intendedTo / signer) with non-empty metadata only
+        // ===============================
+
+        // ----- Config -----
+        const SOS_CONTRACT = "0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A";
+        const CREATOR_ADDRESS = "0x1C10e6574ee696f54b21A611a21313E4714628ad";
+        const MAX_TX_SHOW = 10;
+        const CHUNK = 2000;
+        const LOOKBACK = 5000;
+        const POLL_MS = 12000;
+
+        // Same RPC order that works in the monitor
+        const RPC_LIST = [
+            "https://eth.drpc.org",
+            "https://rpc.mevblocker.io",
+            "https://ethereum-rpc.publicnode.com",
+            "https://eth.llamarpc.com",
+            "https://rpc.flashbots.net",
+            "https://cloudflare-eth.com"
+        ];
+
+        const SOS_ABI = [
+            {
+                "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
+                "name": "trustCountOf",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
+                "name": "pushCountOf",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [{ "internalType": "address", "name": "user", "type": "address" }],
+                "name": "effectiveOf",
+                "outputs": [{ "internalType": "int256", "name": "", "type": "int256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            "event SignatureRecorded(address indexed signer, address indexed intendedTo, bytes32 payloadHash, bytes signature, address indexed submitter, uint256 timestamp, string metadata)"
+        ];
+
+        // ----- State -----
+        let provider = null;
+        let contract = null;
+        let connectedAddress = null;
+        let monitoringAddress = null;
+        let listening = false;
+        let pollTimer = null;
+        let lastBlock = 0;
+        let lastSentBlock = 0;
+
+        const seenTx = new Set();
+        const seenSentTx = new Set();
+
+
+        function setStatus(msg, type) {
+            const el = document.getElementById("status");
+            el.innerText = msg;
+            el.className = "";
+            if (type === "connected") el.classList.add("status-connected");
+            else if (type === "error") el.classList.add("status-error");
+            else if (type === "warning") el.classList.add("status-warning");
+            else if (type === "info") el.classList.add("status-info");
+        }
+
+
+        // ===== Transaction-hash scan-start field =====
+
+        const txHashInput = document.getElementById("txHashInput");
+        const txHashHelper = document.getElementById("txHashHelper");
+
+        if (txHashInput && txHashHelper) {
+            txHashInput.addEventListener("focus", function () {
+                txHashHelper.classList.add("hidden");
+            });
+
+            txHashInput.addEventListener("blur", function () {
+                if (!txHashInput.value.trim()) {
+                    txHashHelper.classList.remove("hidden");
+                }
+            });
+        }
+
+
+        // Resolve a transaction hash to the block it was mined in,
+        // so the message scan can start from that exact message.
+        async function resolveScanStartBlock(txHash) {
+            await ensureProvider();
+
+            const tx = await provider.getTransaction(txHash);
+            if (!tx) {
+                throw new Error("Transaction hash not found");
+            }
+            if (tx.blockNumber === null || tx.blockNumber === undefined) {
+                throw new Error("Transaction not yet mined");
+            }
+
+            return tx.blockNumber;
+        }
+
+
+        function short(addr) {
+            if (!addr) return "—";
+            return addr.slice(0, 6) + "…" + addr.slice(-4);
+        }
+
+
+        function shortErr(err) {
+            if (!err) return "Unknown error";
+            if (err.shortMessage) return err.shortMessage;
+            if (err.info && err.info.error && err.info.error.message) return err.info.error.message;
+            if (err.error && err.error.message) return err.error.message;
+            if (err.reason) return err.reason;
+            return err.message || String(err);
+        }
+
+
+        // Same robust connect as the working monitor
+        async function connectProvider() {
+            let lastError = null;
+
+            for (const url of RPC_LIST) {
+                try {
+                    const p = new ethers.JsonRpcProvider(url, 1, { staticNetwork: true });
+
+                    const n = await Promise.race([
+                        p.getBlockNumber(),
+                        new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 8000))
+                    ]);
+
+                    if (typeof n === "number" && n > 0) {
+                        console.log("Using RPC:", url, "block", n);
+                        return p;
+                    }
+                } catch (e) {
+                    console.warn("RPC failed:", url, shortErr(e));
+                    lastError = e;
+                }
+            }
+
+            throw (lastError || new Error("All RPCs failed"));
+        }
+
+
+        async function ensureProvider() {
+            if (provider && contract) return;
+
+            provider = await connectProvider();
+            contract = new ethers.Contract(SOS_CONTRACT, SOS_ABI, provider);
+        }
+
+
+        function formatTime(ts) {
+            if (!ts) return "";
+            try {
+                return new Date(Number(ts) * 1000).toLocaleString();
+            } catch (e) {
+                return "";
+            }
+        }
+
+
+        function escapeHtml(s) {
+            return String(s)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+
+        function etherscanEventsLink(address) {
+            return (
+                "https://etherscan.io/advanced-filter" +
+                "?fadd=" + encodeURIComponent(address) +
+                "&tadd=" + encodeURIComponent(SOS_CONTRACT) +
+                "&txntype=0"
+            );
+        }
+
+
+        function hasMetadata(parsed) {
+            const meta = (parsed.args.metadata || "").toString().trim();
+            return meta.length > 0;
+        }
+
+
+        function extractConvCode(metadata) {
+            const s = (metadata || "").toString().trim();
+            const m = s.match(/(?:^|\s)([a-fA-F0-9]{8})$/);
+            return m ? m[1].toLowerCase() : null;
+        }
+
+
+        function setReplyCode(code) {
+            const el = document.getElementById("replyCode");
+            if (el && code) {
+                el.value = code;
+                el.dispatchEvent(new Event("input"));
+            }
+            const card = document.getElementById("replyCard");
+            if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        window.setReplyCode = setReplyCode;
+
+
+        // ===== Render a single message event (Trust = received, Push = sent) =====
+
+        function renderMessageEvent(direction, parsed, log, isNew) {
+            const seenSet = direction === "push" ? seenSentTx : seenTx;
+
+            const key = (log.transactionHash || "") + "-" + (log.index !== undefined ? log.index : 0);
+            if (seenSet.has(key)) return "";
+            seenSet.add(key);
+
+            const party = direction === "push"
+                ? (parsed.args.intendedTo || "")
+                : (parsed.args.signer || "");
+
+            const ts = Number(parsed.args.timestamp || 0);
+            const meta = (parsed.args.metadata || "").toString();
+            const when = formatTime(ts);
+            const blockNum = log.blockNumber || "?";
+            const txHash = log.transactionHash || "";
+            const txDisplay = "tx" + (txHash ? txHash.slice(0, 35) : "");
+
+            const convCode = extractConvCode(meta);
+            const rootCode = (txHash && txHash.length >= 10) ? txHash.slice(2, 10).toLowerCase() : "";
+            const replyCode = convCode || rootCode;
+            const replyLabel = convCode
+                ? "REPLY"
+                : (rootCode ? "REPLY (start conv " + rootCode + ")" : "");
+
+            const dirClass = direction === "push" ? "dir-out" : "dir-in";
+            const dirLabel = direction === "push" ? "PUSH Sent 1 SOS" : "TRUST Received 1 SOS";
+
+            let html = '<div class="event' + (isNew ? " new" : "") + '" style="padding:8px 0;">';
+
+            // 1. metadata
+            if (meta && meta.trim()) {
+                html += '<div class="metadata-msg" style="margin:0 0 2px 0;">' + escapeHtml(meta) + '</div>';
+            }
+
+            // 2. address
+            html += '<div class="meta" style="margin:0;"><span class="sender">' + escapeHtml(party) + '</span></div>';
+
+            // 3. tx
+            html += '<a href="https://etherscan.io/tx/' + txHash + '" target="_blank" rel="noopener" style="margin:0;display:inline;">' + txDisplay + '</a>';
+
+            // 4. block · time
+            html += '<div class="meta" style="margin:0;">· block ' + blockNum + (when ? ' · ' + when : '') + '</div>';
+
+            // 5. direction label · REPLY
+            html += '<div class="' + dirClass + '" style="margin:2px 0 0 0;">' + dirLabel +
+                (
+                    replyLabel
+                        ? ' · <a href="javascript:void(0)" onclick="setReplyCode(\'' + escapeHtml(replyCode) + '\')" style="font-size:13px;font-weight:700;">' + escapeHtml(replyLabel) + '</a>'
+                        : ''
+                ) +
+                '</div>';
+
+            html += '</div>';
+
+            return html;
+        }
+
+        function renderEvent(parsed, log, isNew) {
+            return renderMessageEvent("trust", parsed, log, isNew);
+        }
+
+        function renderSentEvent(parsed, log, isNew) {
+            return renderMessageEvent("push", parsed, log, isNew);
+        }
+
+
+        // ===== TRUST (received messages, filtered by intendedTo) =====
+
+        // Exact same fetch pattern as the working monitor
+        async function fetchChunk(fromBlock, toBlock, intendedTo) {
+            const filter = contract.filters.SignatureRecorded(null, intendedTo);
+            return await contract.queryFilter(filter, fromBlock, toBlock);
+        }
+
+
+        async function loadHistoryEvents(fromBlock, toBlock, intendedTo) {
+            const all = [];
+
+            for (let start = fromBlock; start <= toBlock; start += CHUNK) {
+                const end = Math.min(start + CHUNK - 1, toBlock);
+
+                setStatus("Loading history blocks " + start + " → " + end + "…");
+
+                try {
+                    const batch = await fetchChunk(start, end, intendedTo);
+                    all.push(...batch);
+                } catch (e) {
+                    console.warn("Chunk failed, retrying smaller:", shortErr(e));
+
+                    const mid = Math.floor((start + end) / 2);
+
+                    if (mid > start) {
+                        try {
+                            all.push(...await fetchChunk(start, mid, intendedTo));
+                            all.push(...await fetchChunk(mid + 1, end, intendedTo));
+                        } catch (e2) {
+                            console.warn("Sub-chunk still failed:", shortErr(e2));
+                        }
+                    }
+                }
+            }
+
+            return all;
+        }
+
+
+        function setHistoryFooter(count, address) {
+            const footer = document.getElementById("historyFooter");
+            if (!footer) return;
+
+            if (count > 0) {
+                footer.innerHTML =
+                    "Showing last " + count + " event" + (count === 1 ? "" : "s") +
+                    '. <a href="' + etherscanEventsLink(address) + '" target="_blank" rel="noopener">' +
+                    "Full list on Etherscan →" + "</a>";
+            } else {
+                footer.innerHTML =
+                    '<a href="' + etherscanEventsLink(address) + '" target="_blank" rel="noopener">' +
+                    "Open filtered events on Etherscan →" + "</a>";
+            }
+        }
+
+
+        async function loadHistory(address, fromBlockOverride) {
+            const historyDiv = document.getElementById("history");
+
+            historyDiv.innerHTML = '<div class="loading">' + "Loading signature events…" + "</div>";
+            document.getElementById("historyFooter").innerHTML = "";
+            seenTx.clear();
+
+            try {
+                await ensureProvider();
+                setStatus("Loading signature events…");
+
+                const current = await provider.getBlockNumber();
+                lastBlock = current;
+
+                let events;
+
+                if (typeof fromBlockOverride === "number") {
+                    const fromBlock = Math.max(0, fromBlockOverride);
+                    events = await loadHistoryEvents(fromBlock, current, address);
+                    events = events.filter(ev => hasMetadata(ev));
+                } else {
+                    const MAX_LOOKBACK = LOOKBACK * 20;
+                    const collected = [];
+                    const seenKeys = new Set();
+
+                    let windowEnd = current;
+                    let windowSize = LOOKBACK;
+                    let windowStart = Math.max(0, current - windowSize);
+
+                    while (true) {
+                        const batch = await loadHistoryEvents(windowStart, windowEnd, address);
+
+                        for (const ev of batch) {
+                            const k = (ev.transactionHash || "") + "-" + (ev.index !== undefined ? ev.index : 0);
+
+                            if (!seenKeys.has(k) && hasMetadata(ev)) {
+                                seenKeys.add(k);
+                                collected.push(ev);
+                            }
+                        }
+
+                        if (collected.length >= MAX_TX_SHOW) break;
+                        if (windowStart <= 0) break;
+                        if (current - windowStart >= MAX_LOOKBACK) break;
+
+                        windowEnd = windowStart - 1;
+                        windowSize *= 2;
+                        windowStart = Math.max(0, windowEnd - windowSize + 1);
+                    }
+
+                    events = collected;
+                }
+
+                // Newest first
+                events.sort((a, b) => {
+                    const ta = Number(a.args.timestamp || 0);
+                    const tb = Number(b.args.timestamp || 0);
+                    return (tb - ta) || (b.blockNumber - a.blockNumber);
+                });
+
+                const shown = events.slice(0, MAX_TX_SHOW);
+
+                if (shown.length === 0) {
+                    const rangeMsg = (typeof fromBlockOverride === "number")
+                        ? "No SignatureRecorded events with metadata intended to this address from that transaction onward."
+                        : "No SignatureRecorded events with metadata intended to this address in the last ~5 000 blocks.";
+
+                    historyDiv.innerHTML = '<div class="event">' + rangeMsg + "</div>";
+                    setHistoryFooter(0, address);
+                    return;
+                }
+
+                let html = "";
+                for (const ev of shown) {
+                    html += renderEvent(ev, ev.log || ev, false);
+                }
+
+                historyDiv.innerHTML = html;
+                setHistoryFooter(shown.length, address);
+
+            } catch (err) {
+                console.error(err);
+                historyDiv.innerHTML = '<div class="event error">' + "Could not load history: " + escapeHtml(shortErr(err)) + "</div>";
+                setHistoryFooter(0, address);
+            }
+        }
+
+
+        async function pollNew() {
+            if (!listening || !monitoringAddress || !provider || !contract) return;
+
+            try {
+                const current = await provider.getBlockNumber();
+                if (current <= lastBlock) return;
+
+                let events = await fetchChunk(lastBlock + 1, current, monitoringAddress);
+                events = events.filter(ev => hasMetadata(ev));
+
+                if (events.length > 0) {
+                    events.sort((a, b) => {
+                        const ta = Number(a.args.timestamp || 0);
+                        const tb = Number(b.args.timestamp || 0);
+                        return (tb - ta) || (b.blockNumber - a.blockNumber);
+                    });
+
+                    const historyDiv = document.getElementById("history");
+
+                    if (
+                        historyDiv.querySelector(".loading") ||
+                        (historyDiv.children.length <= 2 && historyDiv.textContent.includes("No "))
+                    ) {
+                        historyDiv.innerHTML = "";
+                    }
+
+                    let newHtml = "";
+                    for (const ev of events) {
+                        const piece = renderEvent(ev, ev.log || ev, true);
+                        if (piece) newHtml += piece;
+                    }
+
+                    if (newHtml) {
+                        historyDiv.insertAdjacentHTML("afterbegin", newHtml);
+
+                        const allEvents = historyDiv.querySelectorAll(".event");
+                        if (allEvents.length > MAX_TX_SHOW) {
+                            for (let i = MAX_TX_SHOW; i < allEvents.length; i++) {
+                                allEvents[i].remove();
+                            }
+                        }
+
+                        const visible = historyDiv.querySelectorAll(".event").length;
+                        setHistoryFooter(visible, monitoringAddress);
+                    }
+
+                    setStatus("Live — new message at " + new Date().toLocaleTimeString() + " (block " + current + ")");
+                } else {
+                    setStatus("Live " + short(monitoringAddress) + " · block " + current);
+                }
+
+                lastBlock = current;
+
+            } catch (e) {
+                console.warn("Poll error:", shortErr(e));
+                setStatus("Poll error (will retry): " + shortErr(e));
+            }
+        }
+
+
+        // ===== PUSH (sent messages, filtered by signer) =====
+
+        async function fetchSentChunk(fromBlock, toBlock, signer) {
+            const filter = contract.filters.SignatureRecorded(signer);
+            return await contract.queryFilter(filter, fromBlock, toBlock);
+        }
+
+
+        async function loadSentHistoryEvents(fromBlock, toBlock, signer) {
+            const all = [];
+
+            for (let start = fromBlock; start <= toBlock; start += CHUNK) {
+                const end = Math.min(start + CHUNK - 1, toBlock);
+
+                setStatus("Loading sent history blocks " + start + " → " + end + "…");
+
+                try {
+                    const batch = await fetchSentChunk(start, end, signer);
+                    all.push(...batch);
+                } catch (e) {
+                    console.warn("Sent chunk failed, retrying smaller:", shortErr(e));
+
+                    const mid = Math.floor((start + end) / 2);
+
+                    if (mid > start) {
+                        try {
+                            all.push(...await fetchSentChunk(start, mid, signer));
+                            all.push(...await fetchSentChunk(mid + 1, end, signer));
+                        } catch (e2) {
+                            console.warn("Sent sub-chunk still failed:", shortErr(e2));
+                        }
+                    }
+                }
+            }
+
+            return all;
+        }
+
+
+        function setSentHistoryFooter(count, address) {
+            const footer = document.getElementById("sentHistoryFooter");
+            if (!footer) return;
+
+            if (count > 0) {
+                footer.innerHTML =
+                    "Showing last " + count + " event" + (count === 1 ? "" : "s") +
+                    '. <a href="' + etherscanEventsLink(address) + '" target="_blank" rel="noopener">' +
+                    "Full list on Etherscan →" + "</a>";
+            } else {
+                footer.innerHTML =
+                    '<a href="' + etherscanEventsLink(address) + '" target="_blank" rel="noopener">' +
+                    "Open filtered events on Etherscan →" + "</a>";
+            }
+        }
+
+
+        async function loadSentHistory(address, fromBlockOverride) {
+            const historyDiv = document.getElementById("sentHistory");
+
+            historyDiv.innerHTML = '<div class="loading">' + "Loading sent signature events…" + "</div>";
+            document.getElementById("sentHistoryFooter").innerHTML = "";
+            seenSentTx.clear();
+
+            try {
+                await ensureProvider();
+                setStatus("Loading sent signature events…");
+
+                const current = await provider.getBlockNumber();
+                lastSentBlock = current;
+
+                let events;
+
+                if (typeof fromBlockOverride === "number") {
+                    const fromBlock = Math.max(0, fromBlockOverride);
+                    events = await loadSentHistoryEvents(fromBlock, current, address);
+                    events = events.filter(ev => hasMetadata(ev));
+                } else {
+                    const MAX_LOOKBACK = LOOKBACK * 20;
+                    const collected = [];
+                    const seenKeys = new Set();
+
+                    let windowEnd = current;
+                    let windowSize = LOOKBACK;
+                    let windowStart = Math.max(0, current - windowSize);
+
+                    while (true) {
+                        const batch = await loadSentHistoryEvents(windowStart, windowEnd, address);
+
+                        for (const ev of batch) {
+                            const k = (ev.transactionHash || "") + "-" + (ev.index !== undefined ? ev.index : 0);
+
+                            if (!seenKeys.has(k) && hasMetadata(ev)) {
+                                seenKeys.add(k);
+                                collected.push(ev);
+                            }
+                        }
+
+                        if (collected.length >= MAX_TX_SHOW) break;
+                        if (windowStart <= 0) break;
+                        if (current - windowStart >= MAX_LOOKBACK) break;
+
+                        windowEnd = windowStart - 1;
+                        windowSize *= 2;
+                        windowStart = Math.max(0, windowEnd - windowSize + 1);
+                    }
+
+                    events = collected;
+                }
+
+                events.sort((a, b) => {
+                    const ta = Number(a.args.timestamp || 0);
+                    const tb = Number(b.args.timestamp || 0);
+                    return (tb - ta) || (b.blockNumber - a.blockNumber);
+                });
+
+                const shown = events.slice(0, MAX_TX_SHOW);
+
+                if (shown.length === 0) {
+                    const rangeMsg = (typeof fromBlockOverride === "number")
+                        ? "No SignatureRecorded events with metadata signed by this address from that transaction onward."
+                        : "No SignatureRecorded events with metadata signed by this address in the last ~5 000 blocks.";
+
+                    historyDiv.innerHTML = '<div class="event">' + rangeMsg + "</div>";
+                    setSentHistoryFooter(0, address);
+                    return;
+                }
+
+                let html = "";
+                for (const ev of shown) {
+                    html += renderSentEvent(ev, ev.log || ev, false);
+                }
+
+                historyDiv.innerHTML = html;
+                setSentHistoryFooter(shown.length, address);
+
+            } catch (err) {
+                console.error(err);
+                historyDiv.innerHTML = '<div class="event error">' + "Could not load sent history: " + escapeHtml(shortErr(err)) + "</div>";
+                setSentHistoryFooter(0, address);
+            }
+        }
+
+
+        async function pollNewSent() {
+            if (!listening || !monitoringAddress || !provider || !contract) return;
+
+            try {
+                const current = await provider.getBlockNumber();
+                if (current <= lastSentBlock) return;
+
+                let events = await fetchSentChunk(lastSentBlock + 1, current, monitoringAddress);
+                events = events.filter(ev => hasMetadata(ev));
+
+                if (events.length > 0) {
+                    events.sort((a, b) => {
+                        const ta = Number(a.args.timestamp || 0);
+                        const tb = Number(b.args.timestamp || 0);
+                        return (tb - ta) || (b.blockNumber - a.blockNumber);
+                    });
+
+                    const historyDiv = document.getElementById("sentHistory");
+
+                    if (
+                        historyDiv.querySelector(".loading") ||
+                        (historyDiv.children.length <= 2 && historyDiv.textContent.includes("No "))
+                    ) {
+                        historyDiv.innerHTML = "";
+                    }
+
+                    let newHtml = "";
+                    for (const ev of events) {
+                        const piece = renderSentEvent(ev, ev.log || ev, true);
+                        if (piece) newHtml += piece;
+                    }
+
+                    if (newHtml) {
+                        historyDiv.insertAdjacentHTML("afterbegin", newHtml);
+
+                        const allEvents = historyDiv.querySelectorAll(".event");
+                        if (allEvents.length > MAX_TX_SHOW) {
+                            for (let i = MAX_TX_SHOW; i < allEvents.length; i++) {
+                                allEvents[i].remove();
+                            }
+                        }
+
+                        const visible = historyDiv.querySelectorAll(".event").length;
+                        setSentHistoryFooter(visible, monitoringAddress);
+                    }
+                }
+
+                lastSentBlock = current;
+
+            } catch (e) {
+                console.warn("Sent poll error:", shortErr(e));
+            }
+        }
+
+
+        // ===== Monitoring control =====
+
+        function stopMonitoring() {
+            listening = false;
+            if (pollTimer) {
+                clearInterval(pollTimer);
+                pollTimer = null;
+            }
+        }
+
+
+        async function startMonitoring(address) {
+            stopMonitoring();
+            monitoringAddress = address;
+            listening = true;
+
+            try {
+                await ensureProvider();
+
+                const current = await provider.getBlockNumber();
+                lastBlock = current;
+
+                setStatus("Live " + short(address) + " · waiting for new messages…");
+
+                pollTimer = setInterval(function () {
+                    pollNew();
+                    pollNewSent();
+                }, POLL_MS);
+
+            } catch (err) {
+                console.error(err);
+                setStatus("Could not start live monitoring: " + shortErr(err));
+                listening = false;
+            }
+        }
+
+
+        async function lookup(rawAddress) {
+            try {
+                if (!window.ethers) {
+                    throw new Error("ethers.js not loaded yet — wait a second and try again");
+                }
+
+                const address = ethers.getAddress(rawAddress.trim());
+
+                document.getElementById("address").innerText = address;
+                document.getElementById("lookupAddress").value = address;
+
+                setStatus("Connecting to Ethereum…");
+                await ensureProvider();
+
+                let fromBlockOverride;
+                const txHashRaw = txHashInput ? txHashInput.value.trim() : "";
+
+                if (txHashRaw) {
+                    if (!/^0x[a-fA-F0-9]{64}$/.test(txHashRaw)) {
+                        throw new Error("Invalid transaction hash — expected 0x + 64 hex chars");
+                    }
+
+                    setStatus("Resolving transaction hash…");
+                    fromBlockOverride = await resolveScanStartBlock(txHashRaw);
+                }
+
+                await loadHistory(address, fromBlockOverride);
+                await loadSentHistory(address, fromBlockOverride);
+
+                await startMonitoring(address);
+
+                setStatus("Connected · Live " + short(address));
+
+                const url = new URL(window.location.href);
+                url.searchParams.set("address", address);
+                window.history.replaceState({}, "", url);
+
+            } catch (err) {
+                console.error(err);
+                stopMonitoring();
+                setStatus(shortErr(err));
+            }
+        }
+
+
+        // ===== TRUST / PUSH TABS =====
+        (function setupMessageTabs() {
+            const tabTrust = document.getElementById("tabTrust");
+            const tabPush = document.getElementById("tabPush");
+            const panelTrust = document.getElementById("tabTrustPanel");
+            const panelPush = document.getElementById("tabPushPanel");
+            if (!tabTrust || !tabPush) return;
+
+            function activate(which) {
+                const trustOn = which === "trust";
+                panelTrust.style.display = trustOn ? "block" : "none";
+                panelPush.style.display = trustOn ? "none" : "block";
+                tabTrust.classList.toggle("active", trustOn);
+                tabPush.classList.toggle("active", !trustOn);
+
+                if (trustOn) {
+                    tabTrust.style.background = "var(--brand-blue)";
+                    tabTrust.style.borderColor = "var(--brand-blue)";
+                    tabTrust.style.color = "#fff";
+                    tabPush.style.background = "var(--input-bg)";
+                    tabPush.style.border = "1px solid var(--border)";
+                    tabPush.style.color = "var(--text-muted)";
+                } else {
+                    tabPush.style.background = "var(--brand-blue)";
+                    tabPush.style.borderColor = "var(--brand-blue)";
+                    tabPush.style.color = "#fff";
+                    tabTrust.style.background = "var(--input-bg)";
+                    tabTrust.style.border = "1px solid var(--border)";
+                    tabTrust.style.color = "var(--text-muted)";
+                }
+            }
+
+            tabTrust.addEventListener("click", () => activate("trust"));
+            tabPush.addEventListener("click", () => activate("push"));
+            activate("trust");
+        })();
+
+
+        // ===== REPLY BLOCK =====
+
+        const EIP712_TYPES_REPLY = {
+            Record: [
+                { name: "signer", type: "address" },
+                { name: "intendedTo", type: "address" },
+                { name: "payloadHash", type: "bytes32" },
+                { name: "metadataHash", type: "bytes32" }
+            ]
+        };
+
+        function utf8ByteLength(str) {
+            return new TextEncoder().encode(str || "").length;
+        }
+
+        function updateReplyCount() {
+            const code = (document.getElementById("replyCode").value || "").trim();
+            const limit = /^[a-fA-F0-9]{8}$/.test(code) ? 56 : 64;
+            const text = document.getElementById("replyText").value || "";
+            const len = utf8ByteLength(text);
+            const el = document.getElementById("replyCount");
+            if (el) {
+                el.textContent = len + "/" + limit + " characters";
+                el.style.color = len > limit ? "var(--danger)" : "var(--text-muted)";
+            }
+        }
+
+        document.getElementById("replyCode").addEventListener("input", updateReplyCount);
+        document.getElementById("replyText").addEventListener("input", updateReplyCount);
+        updateReplyCount();
+
+
+        document.getElementById("replySendBtn").onclick = async function () {
+            const statusEl = document.getElementById("replyStatus");
+            const setReplyStatus = (t) => { if (statusEl) statusEl.textContent = t; };
+
+            try {
+                if (!window.ethereum) {
+                    throw new Error("Connect a wallet (MetaMask) to send a reply");
+                }
+                if (!window.ethers) {
+                    throw new Error("ethers.js not loaded yet");
+                }
+                if (userPrefersDisconnected() && !connectedAddress) {
+                    throw new Error("Wallet disconnected - click CONNECT to send");
+                }
+
+                const code = (document.getElementById("replyCode").value || "").trim();
+                let text = (document.getElementById("replyText").value || "").trim();
+                const toRaw = (
+                    monitoringAddress ||
+                    (document.getElementById("lookupAddress") || {}).value ||
+                    ""
+                ).trim();
+
+                if (!toRaw || !/^0x[a-fA-F0-9]{40}$/i.test(toRaw)) {
+                    throw new Error("Load a ledger address above first");
+                }
+                if (!text) {
+                    throw new Error("Message required");
+                }
+
+                const hasCode = /^[a-fA-F0-9]{8}$/i.test(code);
+                const limit = hasCode ? 56 : 64;
+                if (utf8ByteLength(text) > limit) {
+                    throw new Error("Message exceeds " + limit + " characters");
+                }
+
+                let metadata = text;
+                if (hasCode) {
+                    metadata = text + " " + code.toLowerCase();
+                    if (utf8ByteLength(metadata) > 64) {
+                        throw new Error("Message + code exceeds 64 characters");
+                    }
+                }
+
+                setReplyStatus("Connecting wallet…");
+                const browserProvider = new ethers.BrowserProvider(window.ethereum);
+                await browserProvider.send("eth_requestAccounts", []);
+                const replySigner = await browserProvider.getSigner();
+                const from = await replySigner.getAddress();
+                const network = await browserProvider.getNetwork();
+                const to = ethers.getAddress(toRaw);
+
+                const writeContract = new ethers.Contract(
+                    SOS_CONTRACT,
+                    ["function recordSignature(address signer, address intendedTo, bytes32 payloadHash, bytes signature, string metadata)"],
+                    replySigner
+                );
+
+                const domain = {
+                    name: "69069",
+                    version: "1",
+                    chainId: Number(network.chainId),
+                    verifyingContract: SOS_CONTRACT
+                };
+
+                const payloadHash = ethers.keccak256(ethers.toUtf8Bytes("69069:" + from + ":" + to + ":" + Date.now()));
+                const metadataHash = ethers.keccak256(ethers.toUtf8Bytes(metadata));
+                const value = { signer: from, intendedTo: to, payloadHash, metadataHash };
+
+                setReplyStatus("Sign in wallet…");
+                const signature = await replySigner.signTypedData(domain, EIP712_TYPES_REPLY, value);
+
+                setReplyStatus("Submitting…");
+                const tx = await writeContract.recordSignature(from, to, payloadHash, signature, metadata);
+
+                setReplyStatus("Waiting for confirmation…");
+                await tx.wait();
+                setReplyStatus("Sent · " + tx.hash.slice(0, 10) + "…");
+
+                document.getElementById("replyText").value = "";
+                updateReplyCount();
+
+                // refresh current view if monitoring
+                if (monitoringAddress) {
+                    await loadHistory(monitoringAddress);
+                    await loadSentHistory(monitoringAddress);
+                }
+
+            } catch (err) {
+                console.error(err);
+                setReplyStatus(err.shortMessage || err.message || String(err));
+            }
+        };
+
+
+        // ===== CONNECT BUTTON =====
+
+        
+        const DISCONNECT_KEY = "69069_user_disconnected";
+
+        function markDisconnected() {
+            try { sessionStorage.setItem(DISCONNECT_KEY, "1"); } catch (_) {}
+        }
+        function clearDisconnectedFlag() {
+            try { sessionStorage.removeItem(DISCONNECT_KEY); } catch (_) {}
+        }
+        function userPrefersDisconnected() {
+            try { return sessionStorage.getItem(DISCONNECT_KEY) === "1"; } catch (_) { return false; }
+        }
+
+        function disconnectWallet() {
+            connectedAddress = null;
+            stopMonitoring();
+            document.getElementById("lookupButton").textContent = "CONNECT";
+            markDisconnected();
+            setStatus("Disconnected");
+            const raw = (document.getElementById("lookupAddress").value || "").trim();
+            if (raw && /^0x[a-fA-F0-9]{40}$/i.test(raw)) {
+                lookup(raw);
+            }
+        }
+
+        document.getElementById("lookupButton").onclick = async function () {
+            try {
+                if (connectedAddress) {
+                    disconnectWallet();
+                    return;
+                }
+
+                const raw = (document.getElementById("lookupAddress").value || "").trim();
+                const hasValidAddress = !!(raw && /^0x[a-fA-F0-9]{40}$/i.test(raw));
+
+                if (hasValidAddress) {
+                    setStatus("Loading address…");
+                    await lookup(raw);
+                    return;
+                }
+
+                if (window.ethereum) {
+                    setStatus("Connecting…");
+                    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                    if (!accounts || !accounts[0]) {
+                        throw new Error("No account returned");
+                    }
+                    connectedAddress = accounts[0];
+                    clearDisconnectedFlag();
+                    document.getElementById("lookupAddress").value = connectedAddress;
+                    document.getElementById("address").innerText = connectedAddress;
+                    document.getElementById("lookupButton").textContent = "CONNECTED";
+                    await lookup(connectedAddress);
+                    return;
+                }
+
+                setStatus("No ledger found. Install MetaMask or enter a valid 0x address.");
+
+            } catch (err) {
+                console.error(err);
+                setStatus(err.message || String(err));
+            }
+        };
+
+        // React to account / network changes without a page reload (matches ledger.js/index.js/legacy.js)
+        if (window.ethereum && window.ethereum.on) {
+            window.ethereum.on("accountsChanged", async function (accounts) {
+                if (accounts && accounts[0]) {
+                    connectedAddress = accounts[0];
+                    clearDisconnectedFlag();
+                    document.getElementById("lookupAddress").value = connectedAddress;
+                    document.getElementById("address").innerText = connectedAddress;
+                    document.getElementById("lookupButton").textContent = "CONNECTED";
+                    await lookup(connectedAddress);
+                } else {
+                    disconnectWallet();
+                }
+            });
+            window.ethereum.on("chainChanged", function () {
+                window.location.reload();
+            });
+        }
+
+        document.getElementById("lookupAddress").addEventListener("keydown", async function (e) {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+            const raw = (document.getElementById("lookupAddress").value || "").trim();
+            if (!raw || !/^0x[a-fA-F0-9]{40}$/i.test(raw)) {
+                setStatus("Enter a valid 0x address");
+                return;
+            }
+            setStatus("Loading address…");
+            await lookup(raw);
+        });
+
+
+// ===== AUTO ON LOAD =====
+
+        window.addEventListener("load", async function () {
+            const params = new URLSearchParams(window.location.search);
+            const a = params.get("address");
+
+            if (a) {
+                document.getElementById("lookupAddress").value = a;
+                setTimeout(function () { lookup(a); }, 400);
+                return;
+            }
+
+            try {
+                if (window.ethereum && !userPrefersDisconnected()) {
+                    const accounts = await window.ethereum.request({ method: "eth_accounts" });
+
+                    if (accounts && accounts[0]) {
+                        connectedAddress = accounts[0];
+                        document.getElementById("lookupAddress").value = connectedAddress;
+                        document.getElementById("address").innerText = connectedAddress;
+                        document.getElementById("lookupButton").textContent = "CONNECTED";
+
+                        setTimeout(function () { lookup(connectedAddress); }, 400);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn("Auto-connect failed:", err);
+            }
+
+            setTimeout(function () { lookup(CREATOR_ADDRESS); }, 400);
+        });

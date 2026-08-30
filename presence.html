@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>69069 Presence What is the cost of your action right now?</title>
+<meta
+  name="description"
+  content="Whatever you do. SOS records. Whatever you do. Continue ... Presence"
+>
+<link rel="canonical" href="http://sos69069.com/presence.html">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Presence-specific extensions on top of the 69069 design system */
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      background: var(--input-bg);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 10px 6px;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text-primary);
+    }
+
+    .metric-label {
+      color: var(--text-dim);
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .effective-big {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 4px 0 12px;
+      line-height: 1;
+    }
+
+    /* Per-digit color classes used by colorizeDigits() in presence.js */
+    .text-blue   { color: var(--brand-blue-soft); }
+    .text-green  { color: var(--brand-green-bright); }
+    .text-red    { color: var(--danger); }
+    .text-orange { color: var(--brand-yellow); }
+    .text-white  { color: var(--text-primary); }
+
+    .presence-card {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .presence-card.trust {
+      border-left: 3px solid var(--brand-green-bright);
+    }
+
+    .presence-card.push {
+      border-left: 3px solid var(--brand-blue-soft);
+    }
+
+    .presence-title {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .offer-id {
+      color: var(--text-dim);
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .action-buttons button {
+      width: auto;
+      flex: 1;
+      min-width: 100px;
+      margin-top: 0;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .filters button {
+      width: auto;
+      margin-top: 0;
+      padding: 8px 12px;
+      font-size: 13px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .filters button:hover {
+      color: var(--text);
+      opacity: 1;
+    }
+
+    .filters button.active {
+      background: var(--brand-blue);
+      border-color: var(--brand-blue);
+      color: #fff;
+    }
+
+    .status-box {
+      padding: 10px 12px;
+      margin-top: 8px;
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      background: var(--input-bg);
+      color: var(--text-muted);
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .status-box strong {
+      color: var(--text-secondary);
+    }
+
+    .address-mini {
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .type-hint {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin: 4px 0 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 8px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #2d8cff;
+      border-radius: var(--radius-md);
+      background: #0f172a;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      outline: none;
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.15);
+    }
+
+    select:focus {
+      border-color: #5ca7ff;
+      box-shadow: 0 0 16px rgba(45, 140, 255, 0.35);
+    }
+
+    #offersList {
+      max-height: 520px;
+      overflow: auto;
+    }
+
+    #offersList::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #offersList::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #offersList::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-left: 6px;
+    }
+    .status-OPEN { background: rgba(45,140,255,0.15); color: var(--brand-blue-soft); }
+    .status-ACCEPTED { background: rgba(255,193,7,0.15); color: var(--brand-yellow); }
+    .status-DONE { background: rgba(34,197,94,0.15); color: var(--brand-green-bright); }
+    .status-CANCELED { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+    @media (max-width: 480px) {
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .effective-big {
+        font-size: 28px;
+      }
+      .action-buttons button {
+        min-width: 90px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="header-row">
+      <a href="index.html">
+        <img src="logo.webp" alt="69069" class="logo-badge" />
+      </a>
+      <div>
+        <h1>69069 Presence</h1>
+        <p class="subtitle">Ethereum Mainnet</p>
+      </div>
+<a href="sign-submit.html" class="header-link">Sign&amp;Submit</a>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="card nav-links">
+      <a href="ledger.html" class="wallet">Ledger</a>
+      <a href="messages.html" class="history">Messages</a>
+      <a href="presence.html" class="presence">Presence</a>
+      <a href="legacy.html" class="legacy">Legacy</a>
+    </div>
+
+    <!-- CONNECTION -->
+    <div class="card">
+      <input
+        id="lookupAddress"
+        type="text"
+        value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+        placeholder="0x address"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button id="connectButton">CONNECT</button>
+    </div>
+
+    <!-- SOS PRESENCE -->
+    <div class="card">
+      <div id="myEffective" class="effective-big">0</div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div id="myTrust" class="metric-value">0</div>
+          <div class="metric-label">TRUST</div>
+        </div>
+        <div class="metric">
+          <div id="myPush" class="metric-value">0</div>
+          <div class="metric-label">PUSH</div>
+        </div>
+        <div class="metric">
+          <div id="myOffers" class="metric-value">0</div>
+          <div class="metric-label">OFFERS</div>
+        </div>
+        <div class="metric">
+          <div id="myAccepted" class="metric-value">0</div>
+          <div class="metric-label">ACCEPTED</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEAL STATUS (cleaned) -->
+    <div id="behavior" class="card">
+      <div class="metrics" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="metric">
+          <div id="mCompleted" class="metric-value">0</div>
+          <div class="metric-label">COMPLETED</div>
+        </div>
+        <div class="metric">
+          <div id="mCanceled" class="metric-value">0</div>
+          <div class="metric-label">CANCELED</div>
+        </div>
+        <div class="metric">
+          <div id="mOpen" class="metric-value">0</div>
+          <div class="metric-label">OPEN DEALS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ON-CHAIN PRESENCE list -->
+    <div class="card">
+      <div class="filters">
+        <button class="active" data-filter="T">TRUST</button>
+        <button data-filter="P">PUSH</button>
+        <button data-filter="OPEN">OPEN</button>
+        <button data-filter="ACCEPTED">ACCEPTED</button>
+        <button data-filter="DONE">DONE</button>
+        <button data-filter="CANCELED">CANCELED</button>
+        <button data-filter="ALL">ALL</button>
+      </div>
+
+      <div id="offersList">
+        <p class="muted" style="font-size:14px;font-weight:400;">
+          Connect wallet and load blockchain activity.
+        </p>
+      </div>
+    </div>
+
+    <!-- CREATE -->
+    <div class="card">
+      <select id="offerType">
+        <option value="T">TRUST PRESENCE</option>
+        <option value="P">PUSH PRESENCE</option>
+      </select>
+
+      <p class="type-hint" id="typeExplanation">
+        TRUST: accepter sends the first SOS to the poster.<br>
+        PUSH: poster sends the first SOS to the accepter.<br>
+        After receipt the receiver marks DONE. Optional CANCEL available.
+      </p>
+
+      <label for="offerQty">Quantity</label>
+      <input id="offerQty" type="number" min="1" step="1" value="1" />
+
+      <label for="offerReturn">Return / exchange</label>
+      <input id="offerReturn" maxlength="24" placeholder="0.01ETH" />
+
+      <div class="status-box">
+        <strong>Metadata:</strong>
+        <div id="metadataPreview" class="address-mini" style="margin-top:4px;">—</div>
+      </div>
+
+      <div class="status-box">
+        <strong>Metadata length:</strong>
+        <span id="metadataLength">0</span>/64
+      </div>
+
+      <button id="createOfferButton" class="btn-green">
+        CREATE
+      </button>
+<p class="hint" style="margin-top:10px;">Whatever you do. SOS 69069 records. Continue ...</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+  <script type="module" src="presence.js"></script>
+
+</body>
+</html>

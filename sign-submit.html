@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>69069 Sign &amp; Submit What is the cost of your action right now?</title>
+  <meta name="description" content="Whatever you do. SOS records. Whatever you do. Continue ... Sign & Submit">
+  <link rel="canonical" href="http://sos69069.com/sign-submit.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .method-badge {
+      font-size: 11px; padding: 2px 8px; border-radius: 12px;
+      font-weight: 700; margin-left: 6px;
+    }
+    .badge-extension { background: #f6851b; color: white; }
+    .badge-walletconnect { background: #3b99fc; color: white; }
+
+    .status-connected { color: var(--brand-green-bright); }
+    .status-error     { color: var(--danger); }
+    .status-warning   { color: var(--brand-yellow); }
+    .status-info      { color: var(--brand-blue-soft); }
+
+    .step-tabs { display: flex; gap: 0; overflow: hidden; padding: 0; }
+    .step-tab {
+      flex: 1; text-align: center; padding: 12px 8px;
+      font-weight: 700; font-size: 14px; cursor: pointer;
+      color: var(--text-secondary); background: transparent;
+      border: none; border-bottom: 3px solid transparent;
+    }
+    .step-tab.active { color: var(--brand-blue-soft); border-bottom: 3px solid var(--brand-blue); }
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    input[type="text"] {
+      font-weight: 700; font-size: 16px; text-align: center;
+      border: 1.5px solid #2d8cff; border-radius: var(--radius-md);
+      padding: 12px; background: #0f172a; color: white;
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.35);
+      margin-top: 14px; margin-bottom: 10px;
+      width: 100%; box-sizing: border-box; outline: none;
+    }
+    input[type="text"]:focus { border-color: #5ca7ff; box-shadow: 0 0 16px rgba(45, 140, 255, 0.5); }
+
+    #pastePayload {
+      width: 100%; padding: 12px;
+      border: 1.5px solid #2d8cff; border-radius: var(--radius-md);
+      background: #0f172a; color: white; font-size: 13px; font-weight: 600;
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.35);
+      margin-top: 14px; margin-bottom: 6px;
+      box-sizing: border-box; resize: vertical; font-family: monospace; outline: none;
+    }
+    #pastePayload:focus { border-color: #5ca7ff; box-shadow: 0 0 16px rgba(45, 140, 255, 0.5); }
+
+    .char-count { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: -4px; margin-bottom: 6px; }
+    .char-count.over { color: var(--danger); font-weight: 700; }
+
+    .hint { color: var(--text-muted); font-size: 13px; margin-top: 6px; text-align: center; }
+
+    .payload-box {
+      background: #0f172a; border: 1px solid var(--border); border-radius: var(--radius-md);
+      padding: 12px; font-family: monospace; font-size: 12px; color: var(--brand-green-bright);
+      white-space: pre-wrap; word-break: break-all; margin-top: 10px; display: none;
+    }
+
+    #signBtn, #submitBtn, #connectSignBtn, #connectSubmitBtn { background: var(--brand-blue); }
+    #signBtn:disabled, #submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+    #copyBtn { background: var(--brand-blue); margin-top: 8px; }
+
+    .progress { height: 5px; background: #1e293b; border-radius: 3px; margin-top: 12px; overflow: hidden; display: none; }
+    .progress.visible { display: block; }
+    .progress-bar { height: 100%; background: var(--brand-blue); width: 0%; transition: width 0.2s; }
+
+    /* ============================================================
+       BATCH SECTION — NEW STYLES
+       All prefixed b- to avoid conflicts with sign-submit styles
+       ============================================================ */
+    .b-divider {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 2px solid var(--border);
+    }
+    .b-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--brand-blue-soft);
+      margin-bottom: 4px;
+    }
+    .b-textarea {
+      width: 100%; box-sizing: border-box;
+      padding: 12px;
+      border: 1.5px solid #2d8cff; border-radius: var(--radius-md);
+      background: #0f172a; color: white;
+      font-size: 13px; font-weight: 600; font-family: monospace;
+      resize: vertical; outline: none;
+      box-shadow: 0 0 12px rgba(45,140,255,0.2);
+      margin-top: 8px; margin-bottom: 4px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .b-textarea:focus {
+      border-color: #5ca7ff;
+      box-shadow: 0 0 16px rgba(45,140,255,0.4);
+    }
+    .b-label {
+      font-size: 12px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.08em; margin-top: 4px;
+    }
+    .b-line-count {
+      font-size: 11px; color: var(--text-muted);
+      text-align: right; margin-bottom: 2px;
+    }
+    .b-line-count.mismatch { color: var(--danger); font-weight: 700; }
+    .b-pair-row {
+      display: flex; align-items: flex-start;
+      gap: 8px; padding: 8px 0;
+      border-bottom: 1px solid var(--border-soft);
+      font-size: 12px; font-family: monospace;
+    }
+    .b-pair-row:last-child { border-bottom: none; }
+    .b-pair-num   { color: var(--text-muted); min-width: 24px; padding-top: 1px; }
+    .b-pair-addr  { color: var(--brand-yellow); flex: 1; word-break: break-all; }
+    .b-pair-arrow { color: var(--text-muted); padding-top: 1px; }
+    .b-pair-meta  { color: #e2e8f0; flex: 1; word-break: break-word; }
+    .b-pair-status {
+      font-size: 10px; font-weight: 700; padding: 1px 6px;
+      border-radius: 999px; white-space: nowrap;
+      background: rgba(100,116,139,0.15); color: var(--text-muted);
+    }
+    .b-pair-status.signing    { background: rgba(91,139,255,0.15); color: var(--brand-blue-soft); }
+    .b-pair-status.signed     { background: rgba(34,197,94,0.15);  color: var(--brand-green-bright); }
+    .b-pair-status.submitting { background: rgba(91,139,255,0.15); color: var(--brand-blue-soft); }
+    .b-pair-status.waiting    { background: rgba(91,139,255,0.15); color: var(--brand-blue-soft); }
+    .b-pair-status.confirmed  { background: rgba(34,197,94,0.15);  color: var(--brand-green-bright); }
+    .b-pair-status.error      { background: rgba(239,68,68,0.15);  color: var(--danger); }
+    .b-pair-error { color: var(--danger); font-size: 11px; margin-top: 2px; }
+    .b-pair-tx    { color: var(--brand-green-bright); font-size: 11px; margin-top: 2px; }
+    .b-summary {
+      display: flex; justify-content: center;
+      gap: 16px; flex-wrap: wrap;
+      font-size: 13px; font-weight: 700; margin-top: 8px;
+    }
+    .b-summary-item { color: var(--text-muted); }
+    .b-summary-item span { color: white; margin-left: 4px; }
+    .b-summary-item.ok  span { color: var(--brand-green-bright); }
+    .b-summary-item.err span { color: var(--danger); }
+    #b_loadBtn      { background: var(--brand-blue); }
+    #b_signAllBtn   { background: var(--brand-blue); }
+    #b_submitAllBtn { background: var(--brand-green); }
+    #b_connectSignBtn, #b_connectSubmitBtn { background: var(--brand-blue); }
+    #b_signAllBtn:disabled, #b_submitAllBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header-row">
+      <a href="ledger.html">
+        <img src="logo.webp" alt="69069" class="logo-badge">
+      </a>
+      <div>
+        <h1>69069 Sign &amp; Submit</h1>
+        <p class="subtitle">Ethereum Mainnet</p>
+      </div>
+      <a href="sign-submit.html" class="header-link">Sign&amp;Submit</a>
+    </div>
+
+    <div class="card nav-links">
+      <a href="ledger.html" class="wallet">Ledger</a>
+      <a href="messages.html" class="history">Messages</a>
+      <a href="presence.html" class="presence">Presence</a>
+      <a href="legacy.html" class="legacy">Legacy</a>
+    </div>
+
+    <div class="card step-tabs">
+      <button class="step-tab active" id="tabSignBtn">1 &middot; SIGN (free)</button>
+      <button class="step-tab" id="tabSubmitBtn">2 &middot; SUBMIT (pays gas)</button>
+    </div>
+
+    <!-- ==================== SIGN PANEL ==================== -->
+    <div class="step-panel active" id="signPanel">
+
+      <div class="card">
+        <p class="hint">Connect the wallet whose signature you want recorded.
+          This step never sends a transaction and never needs ETH.</p>
+        <button id="connectSignBtn">CONNECT SIGNING WALLET</button>
+        <p class="hint" id="signWalletStatus"></p>
+        <a href="https://link.metamask.io/dapp/sos69069.com"
+           target="_blank" class="metamask-link">
+          <span class="link-icon">&#128058;</span> MetaMask Wallet
+        </a>
+      </div>
+
+      <div class="card">
+        <input id="intendedTo" type="text"
+               placeholder="0x recipient address (intendedTo)"
+               value="0x1C10e6574ee696f54b21A611a21313E4714628ad" />
+        <input id="metadata" type="text"
+               placeholder="short message" maxlength="64" />
+        <p class="char-count" id="metaCount">0/64 characters</p>
+
+        <button id="signBtn" disabled>SIGN MESSAGE</button>
+        <div class="progress" id="signProgress"><div class="progress-bar" id="signBar"></div></div>
+
+        <div class="payload-box" id="signOutput"></div>
+        <button id="copyBtn" style="display:none;width:100%;">COPY SIGNED PAYLOAD</button>
+        <p class="hint" id="signStatus"></p>
+<p>Whatever you do. SOS 69069 records. Continue ...</p>
+      </div>
+    </div>
+
+    <!-- ==================== SUBMIT PANEL ==================== -->
+    <div class="step-panel" id="submitPanel">
+
+      <div class="card">
+        <p class="hint">Connect the wallet that will pay gas and broadcast the
+          transaction. It does not need to hold the signing key.</p>
+        <button id="connectSubmitBtn">CONNECT SUBMITTING WALLET</button>
+        <p class="hint" id="submitWalletStatus"></p>
+      </div>
+
+      <div class="card">
+        <textarea id="pastePayload" rows="6"
+                  placeholder="Paste the signed payload JSON here"></textarea>
+        <button id="parseBtn">LOAD PAYLOAD</button>
+        <div class="payload-box" id="parsedPreview"></div>
+
+        <button id="submitBtn" disabled style="background:var(--brand-green);margin-top:10px;">
+          SUBMIT ON-CHAIN
+        </button>
+        <div class="progress" id="submitProgress"><div class="progress-bar" id="submitBar"></div></div>
+        <p class="hint" id="submitStatus"></p>
+<p>Whatever you do. SOS 69069 records. Continue ...</p>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         BATCH SECTION — ADDED BELOW SIGN & SUBMIT
+         Paste addresses line by line + messages line by line.
+         Independent wallet connections prefixed b_.
+         ============================================================ -->
+<div class="b-divider">
+      
+      <!-- Input card -->
+      <div class="card">
+        <p class="b-label">Addresses — one per line</p>
+        <p class="b-line-count" id="b_addrCount">0 lines</p>
+        <textarea
+          id="b_addrInput"
+          class="b-textarea"
+          rows="5"
+          placeholder="0x1234...&#10;0x5678...&#10;0xabcd..."
+          spellcheck="false"
+        ></textarea>
+
+        <p class="b-label" style="margin-top:12px;">Messages — one per line</p>
+        <p class="b-line-count" id="b_msgCount">0 lines</p>
+        <textarea
+          id="b_msgInput"
+          class="b-textarea"
+          rows="5"
+          placeholder="hello world&#10;another message&#10;my metadata here"
+          spellcheck="false"
+        ></textarea>
+
+        <button id="b_loadBtn">LOAD PAIRS</button>
+        <p class="hint" id="b_loadStatus"></p>
+      </div>
+
+      <!-- Preview card -->
+      <div class="card" id="b_previewCard" style="display:none;">
+        <div id="b_pairList"></div>
+        <div class="b-summary" id="b_summary"></div>
+      </div>
+
+      <!-- Batch sign -->
+      <div class="card" style="margin-top:4px;">
+        <p class="hint">Connect the wallet that will sign. Never needs ETH.</p>
+        <button id="b_connectSignBtn">CONNECT SIGNING WALLET</button>
+        <p class="hint" id="b_signWalletStatus"></p>
+      </div>
+
+      <button id="b_signAllBtn" disabled>SIGN ALL</button>
+      <div class="progress" id="b_signProgress"><div class="progress-bar" id="b_signBar"></div></div>
+      <p class="hint" id="b_signStatus"></p>
+
+      <!-- Batch submit -->
+      <div class="card" style="margin-top:8px;">
+        <p class="hint">Connect the wallet that will pay gas.</p>
+        <button id="b_connectSubmitBtn">CONNECT SUBMITTING WALLET</button>
+        <p class="hint" id="b_submitWalletStatus"></p>
+      </div>
+
+      <button id="b_submitAllBtn" disabled>SUBMIT ALL ON-CHAIN</button>
+<p class="hint" id="signStatus"></p>
+<p>Whatever you do. SOS 69069 records. Continue ...</p>
+      <div class="progress" id="b_submitProgress"><div class="progress-bar" id="b_submitBar"></div></div>
+      <p class="hint" id="b_submitStatus"></p>
+    </div>
+    <!-- END BATCH SECTION -->
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+  <script src="sign-submit.js"></script>
+</body>
+</html>

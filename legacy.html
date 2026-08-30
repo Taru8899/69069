@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>69069 Legacy What is the cost of your action right now?</title>
+<meta
+  name="description"
+  content="Whatever you do. SOS records. Whatever you do. Continue ... Legacy"
+>
+<link rel="canonical" href="http://sos69069.com/legacy.html">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ============================================================
+       LEGACY PAGE
+       ============================================================ */
+
+    .method-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      margin-left: 6px;
+    }
+
+    .badge-extension {
+      background: #f6851b;
+      color: white;
+    }
+
+    .badge-walletconnect {
+      background: #3b99fc;
+      color: white;
+    }
+
+    .status-connected {
+      color: var(--brand-green-bright);
+    }
+
+    .status-error {
+      color: var(--danger);
+    }
+
+    .status-warning {
+      color: var(--brand-yellow);
+    }
+
+    .status-info {
+      color: var(--brand-blue-soft);
+    }
+
+    /* MetaMask link */
+    .metamask-link {
+      display: block;
+      text-align: center;
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--brand-blue-soft);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .metamask-link:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
+
+    /* Inputs */
+    input[type="text"] {
+      font-weight: 700;
+      font-size: 16px;
+      text-align: center;
+
+      border: 1.5px solid #2d8cff;
+      border-radius: var(--radius-md);
+
+      padding: 12px;
+
+      background: #0f172a;
+      color: white;
+
+      box-shadow: 0 0 12px rgba(45, 140, 255, 0.35);
+
+      margin-top: 14px;
+      margin-bottom: 10px;
+
+      width: 100%;
+      box-sizing: border-box;
+
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: #5ca7ff;
+      box-shadow: 0 0 16px rgba(45, 140, 255, 0.5);
+    }
+
+    /* CHECK = same blue style as CONNECT */
+    #legacyScanBtn {
+      background: var(--brand-blue);
+    }
+
+    /*
+      START = normal green action
+      FINISH = legacy navigation color
+    */
+    #legacyStartBtn {
+      background: var(--brand-green);
+    }
+
+    #legacyFinishBtn {
+      background: var(--brand-purple, var(--brand-blue));
+    }
+
+    /*
+      If style.css exposes a specific legacy color,
+      use it automatically.
+    */
+    #legacyFinishBtn {
+      background: var(--brand-pink, var(--brand-purple, var(--brand-blue)));
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    button:disabled:hover {
+      opacity: 0.5;
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 6px;
+      text-align: center;
+      line-height: 1.45;
+    }
+
+    .legacy-info {
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: var(--radius-md);
+
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(45, 140, 255, 0.30);
+
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .legacy-info.success {
+      color: var(--brand-green-bright);
+      border-color: rgba(34, 197, 94, 0.35);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .legacy-info.warning {
+      color: var(--brand-yellow);
+      border-color: rgba(245, 158, 11, 0.35);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .legacy-info.error {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.35);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .legacy-values {
+      margin-top: 10px;
+      padding: 12px;
+
+      border-radius: var(--radius-md);
+
+      background: rgba(2, 6, 23, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+    }
+
+    .legacy-value-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 5px 0;
+    }
+
+    .legacy-value-label {
+      color: var(--text-muted);
+    }
+
+    .legacy-value-number {
+      font-weight: 800;
+      word-break: break-all;
+    }
+
+    .legacy-mono {
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .legacy-progress {
+      height: 5px;
+      background: #1e293b;
+      border-radius: 3px;
+
+      margin-top: 12px;
+
+      overflow: hidden;
+      display: none;
+    }
+
+    .legacy-progress-bar {
+      height: 100%;
+      background: var(--brand-blue);
+
+      width: 0%;
+
+      transition: width 0.2s;
+    }
+
+    .legacy-result {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+
+  <div class="header-row">
+
+    <a href="index.html">
+      <img
+        src="logo.webp"
+        alt="69069"
+        class="logo-badge"
+      >
+    </a>
+
+    <div>
+      <h1>69069 Legacy</h1>
+      <p class="subtitle">Ethereum Mainnet</p>
+    </div>
+<a href="sign-submit.html" class="header-link">Sign&amp;Submit</a>
+  </div>
+
+
+  <!-- ============================================================
+       NAV
+       ============================================================ -->
+
+  <div class="card nav-links">
+
+    <a href="ledger.html" class="wallet">
+      Ledger
+    </a>
+
+    <a href="messages.html" class="history">
+      Messages
+    </a>
+
+    <a href="presence.html" class="presence">
+      Presence
+    </a>
+
+    <a href="legacy.html" class="legacy">
+      Legacy
+    </a>
+
+  </div>
+
+
+  <!-- ============================================================
+       LEGACY
+       ============================================================ -->
+
+  <div class="card">
+
+    <!-- OLD ADDRESS -->
+
+    <input
+      id="legacyOld"
+      type="text"
+      placeholder="Old address"
+      value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+    >
+
+
+    <!-- CHECK -->
+
+    <button
+      id="legacyScanBtn"
+      type="button"
+    >
+      CHECK
+    </button>
+
+
+    <!-- CHECK RESULT -->
+
+    <div
+      id="legacyCheckResult"
+      class="legacy-info"
+    >
+      you can claim this adress
+    </div>
+
+
+    <!-- ON-CHAIN VALUES -->
+
+    <div
+      id="legacyValues"
+      class="legacy-values"
+      style="display:none;"
+    >
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Connected address
+        </span>
+
+        <span
+          id="legacyNewAddress"
+          class="legacy-value-number legacy-mono"
+        >
+          -
+        </span>
+      </div>
+
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Connected effective
+        </span>
+
+        <span
+          id="legacyNewEffective"
+          class="legacy-value-number"
+        >
+          -
+        </span>
+      </div>
+
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Old address
+        </span>
+
+        <span
+          id="legacyOldAddress"
+          class="legacy-value-number legacy-mono"
+        >
+          -
+        </span>
+      </div>
+
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Old effective now
+        </span>
+
+        <span
+          id="legacyOldEffective"
+          class="legacy-value-number"
+        >
+          -
+        </span>
+      </div>
+
+
+      <div class="legacy-value-row">
+        <span class="legacy-value-label">
+          Old effective after +1
+        </span>
+
+        <span
+          id="legacyOldEffectiveAfter"
+          class="legacy-value-number"
+        >
+          -
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================================================
+       START CLAIM
+       ============================================================ -->
+
+  <div class="card">
+
+    <input
+      id="legacyStartAddress"
+      type="text"
+      placeholder="Old address for START"
+      value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+    >
+
+
+    <button
+      id="legacyStartBtn"
+      type="button"
+    >
+      START
+    </button>
+
+
+    <p
+      id="legacyStartStatus"
+      class="hint"
+    >
+     
+    </p>
+
+
+    <div
+      class="legacy-progress"
+      id="legacyStartProgress"
+    >
+      <div
+        class="legacy-progress-bar"
+        id="legacyStartProgressBar"
+      ></div>
+    </div>
+
+  </div>
+
+
+  <!-- ============================================================
+       FINISH CLAIM
+       ============================================================ -->
+
+  <div class="card">
+
+    <input
+      id="legacyFinishAddress"
+      type="text"
+      placeholder="Old address for FINISH"
+      value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+    >
+
+
+    <button
+      id="legacyFinishBtn"
+      type="button"
+    >
+      FINISH
+    </button>
+
+
+    <p
+      id="legacyFinishStatus"
+      class="hint"
+    >
+
+    </p>
+
+
+    <div
+      class="legacy-progress"
+      id="legacyFinishProgress"
+    >
+      <div
+        class="legacy-progress-bar"
+        id="legacyFinishProgressBar"
+      ></div>
+
+    </div>
+<p>Whatever you do. SOS 69069 records. Continue ...</p>
+  </div>
+
+
+  <!-- ============================================================
+       SCRIPT RESULT
+       ============================================================ -->
+
+  <div
+    id="legacyTxResult"
+    class="legacy-result"
+  ></div>
+
+</div>
+
+
+<!-- ============================================================
+     ETHERS
+     ============================================================ -->
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"></script>
+
+
+<script src="legacy.js"></script>
+
+</body>
+</html>

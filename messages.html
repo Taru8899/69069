@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>69069 Messages What is the cost of your action right now?</title>
+<meta
+  name="description"
+  content="Whatever you do. SOS records. Whatever you do. Continue ... Messages"
+>
+<link rel="canonical" href="http://sos69069.com/messages.html">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+      /* Feed / events – match index.html CHECK data block */
+      #history,
+      #sentHistory {
+        font-size: 14px;
+        max-height: 420px;
+        overflow: auto;
+        margin-top: 8px;
+      }
+
+      .event {
+        border-bottom: 1px solid var(--input-bg, #1e293b);
+        padding: 8px 0;
+      }
+      .event:last-child {
+        border-bottom: none;
+      }
+      .event .dir-in {
+        color: #22c55e;
+        font-weight: bold;
+      }
+      .event .dir-out {
+        color: #f97316;
+        font-weight: bold;
+      }
+      .event .meta {
+        font-size: 13px;
+        color: #9ca3af;
+        margin-top: 0;
+      }
+      .event a {
+        font-size: 13px;
+        color: var(--brand-blue-soft);
+      }
+      .event .metadata-msg {
+        font-size: 19px;
+        font-weight: 800;
+        line-height: 1.35;
+        margin: 0 0 2px 0;
+        word-break: break-word;
+      }
+      .event .sender {
+        font-family: ui-monospace, monospace;
+        font-size: 13px;
+      }
+
+      .feed-empty {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 16px 8px;
+        font-size: 13px;
+      }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header-row">
+
+            <a href="index.html">
+                <img
+                    src="logo.webp"
+                    alt="69069"
+                    class="logo-badge"
+                >
+            </a>
+
+            <div>
+                <h1>69069 Messages</h1>
+                <p class="subtitle">Ethereum Mainnet</p>
+            </div>
+<a href="sign-submit.html" class="header-link">Sign&amp;Submit</a>
+        </div>
+
+
+        <!-- NAVIGATION -->
+        <div class="card nav-links">
+
+            <a href="ledger.html" class="wallet">
+                Ledger
+            </a>
+
+            <a href="messages.html" class="history">
+                Messages
+            </a>
+
+            <a href="presence.html" class="presence">
+                Presence
+            </a>
+
+            <a href="legacy.html" class="legacy">
+                Legacy
+            </a>
+
+        </div>
+
+
+        <!-- CONNECT data block -->
+        <div class="card lookup-card">
+
+            <input
+                id="lookupAddress"
+                value="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+                placeholder="0x1C10e6574ee696f54b21A611a21313E4714628ad"
+                class="lookup-address"
+            >
+
+            <div class="tx-hash-group">
+
+                <input
+                    id="txHashInput"
+                    type="text"
+                    autocomplete="off"
+                    spellcheck="false"
+                    class="tx-hash-input"
+                >
+
+                <label
+                    id="txHashHelper"
+                    for="txHashInput"
+                >
+                    look into this transaction hash
+                </label>
+
+            </div>
+
+            <button id="lookupButton">
+                CONNECT
+            </button>
+
+            <!-- Hidden: kept for messages.js -->
+            <div id="status" style="display:none;" aria-hidden="true">Ready</div>
+            <div id="address" style="display:none;" aria-hidden="true">-</div>
+
+        </div>
+
+
+        <!-- TRUST / PUSH data block (under CONNECT) – style matches index CHECK feed -->
+        <div class="card messages-card">
+
+            <div class="filters" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+                <button type="button" id="tabTrust" class="active" data-tab="trust" style="width:auto;margin-top:0;padding:8px 14px;font-size:14px;background:var(--brand-blue);border:none;color:#fff;">TRUST</button>
+                <button type="button" id="tabPush" data-tab="push" style="width:auto;margin-top:0;padding:8px 14px;font-size:14px;background:var(--input-bg);border:1px solid var(--border);color:var(--text-muted);">PUSH</button>
+            </div>
+
+            <div id="tabTrustPanel">
+                <div id="history">
+                    <div class="feed-empty">No data yet. Enter an address above.</div>
+                </div>
+                <div id="historyFooter"></div>
+            </div>
+
+            <div id="tabPushPanel" style="display:none;">
+                <div id="sentHistory">
+                    <div class="feed-empty">No data yet. Enter an address above.</div>
+                </div>
+                <div id="sentHistoryFooter"></div>
+            </div>
+
+        </div>
+
+
+        <!-- SEND / REPLY data block -->
+        <div class="card" id="replyCard">
+
+            <input
+                id="replyCode"
+                type="text"
+                maxlength="8"
+                placeholder="conversation code (8 chars)"
+                autocomplete="off"
+                spellcheck="false"
+                style="text-align:center;font-weight:700;letter-spacing:0.08em;border:1.5px solid #2d8cff;border-radius:var(--radius-md);padding:12px;background:#0f172a;color:white;box-shadow:0 0 12px rgba(45,140,255,.35);margin-top:10px;margin-bottom:10px;width:100%;box-sizing:border-box;outline:none;font-size:16px;"
+            >
+
+            <input
+                id="replyText"
+                type="text"
+                maxlength="64"
+                placeholder="short message"
+                autocomplete="off"
+                style="text-align:center;font-weight:700;border:1.5px solid #2d8cff;border-radius:var(--radius-md);padding:12px;background:#0f172a;color:white;box-shadow:0 0 12px rgba(45,140,255,.35);margin-top:10px;margin-bottom:10px;width:100%;box-sizing:border-box;outline:none;font-size:16px;"
+            >
+
+            <p class="char-count" id="replyCount" style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:-4px;margin-bottom:6px;">0/64 characters</p>
+
+            <button id="replySendBtn" class="btn-green">SEND</button>
+
+            <p class="hint" id="replyStatus" style="text-align:center;font-size:13px;color:var(--text-muted);margin-top:8px;"></p>
+<p>Whatever you do. SOS 69069 records. Continue ...</p>
+        </div>
+
+    </div>
+
+
+    <!-- APPLICATION -->
+    <script type="module" src="messages.js"></script>
+
+</body>
+
+</html>
