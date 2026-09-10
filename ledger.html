@@ -155,20 +155,6 @@
       font-weight: 400;
       font-size: 0.9rem;
     }
-
-    /* ------------------------------------------------------------
-       Sign&Submit corner
-       ------------------------------------------------------------
-       Last item in .header-row with margin-left:auto, so it sits at
-       the top-right of the header, in normal document flow.
-       ------------------------------------------------------------ */
-    .header-link {
-      margin-left: auto;
-      background: var(--card-bg);
-      padding: 6px 12px;
-      border-radius: var(--radius-sm);
-      box-shadow: var(--shadow-card);
-    }
   </style>
 </head>
 <body>
@@ -184,7 +170,10 @@
         <h1>69069 Ledger</h1>
         <p class="subtitle">Ethereum Mainnet</p>
       </div>
-      <a href="sign-submit.html" class="header-link">Sign&amp;Submit</a>
+      <div class="header-link-group">
+        <a href="https://github.com/Taru8899/69069" class="header-link header-link-secondary" target="_blank" rel="noopener noreferrer">SOS 69069 APP</a>
+        <a href="sign-submit.html" class="header-link">Sign&amp;Submit</a>
+      </div>
     </div>
 
     <!-- NAV -->
