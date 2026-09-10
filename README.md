@@ -15,6 +15,8 @@ https://github.com/Taru8899/SOS69069APP/blob/2861eb9cd963bc3ffe7082b8e39fc517e65
 SOS 69069 APP v 1.6.9.0.6.9, light version arm64-v8a
 https://github.com/Taru8899/SOS69069APP/blob/41fd3ef7b5ce527ce75082e37a23203888609aef/1.6.9.0.6.9-sos69069-1.6.9-arm64-v8a-debug.apk
 
+https://drive.google.com/drive/folders/1I9rpQFzpw14FKYM-rQCE-DCB7RQlEvyY
+
 ## Overview
 
 69069 is a pure on-chain event ledger. It holds no assets, executes nothing on behalf of users, and has no admin, owner, or upgrade path. It only records signed data as permanent events.
