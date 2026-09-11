@@ -2,7 +2,7 @@
 //  69069 Ledger – CHECK feed + REPLY send (messages.html parity)
 // ============================================================
 const CONTRACT_ADDRESS = "0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A";
-const DEFAULT_ADDRESS = "0x1C10e6574ee696f54b21A611a21313E4714628ad";
+const DEFAULT_ADDRESS = "0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A";
 const MAX_METADATA_LENGTH = 64;
 const MAX_TX_SHOW = 10;
 const LOOKBACK = 80000;
