@@ -12,8 +12,7 @@ Coffee me 0x1c10e6574ee696f54b21a611a21313e4714628ad
 0x7373DBC24Dcd785896E8Ac3d5372c6ced9B75a8A
 
 1.
-SOS 69069html ZIP
-https://github.com/Taru8899/69069/blob/main/1.6.9.0.6.9-20html69069.zip
+https://github.com/Taru8899/69069/blob/main/1.6.9.0.6.9-html69069.zip
 
 
 2.
